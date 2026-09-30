@@ -27,6 +27,7 @@ export interface ExamMetadata {
 }
 
 export type QuizStage = 'upload' | 'review' | 'quiz' | 'results';
+export type UserRole = 'teacher' | 'student';
 
 export interface StudentAnswers {
   [questionId: string]: number | null;
@@ -56,4 +57,41 @@ export interface PublishedExam {
 
 export const OPTION_LABELS = ['أ', 'ب', 'ج', 'د'] as const;
 export type OptionLabel = typeof OPTION_LABELS[number];
+
+export interface ExamSubmission {
+  id: string;
+  examId: string;
+  examTitle: string;
+  examineeName: string; // "أول مختبر", "المختبر الثاني", etc.
+  examineeIndex: number;
+  submittedAt: string;
+  correctCount: number;
+  wrongCount: number;
+  unansweredCount: number;
+  totalQuestions: number;
+  percentage: number;
+  timeSpentSeconds: number;
+  answers: StudentAnswers;
+  scratchpads: StudentScratchpads;
+  attemptNumber: number;
+}
+
+export function getExamineeLabel(index: number): string {
+  const ordinals = [
+    'أول مختبر',
+    'المختبر الثاني',
+    'المختبر الثالث',
+    'المختبر الرابع',
+    'المختبر الخامس',
+    'المختبر السادس',
+    'المختبر السابع',
+    'المختبر الثامن',
+    'المختبر التاسع',
+    'المختبر العاشر'
+  ];
+  if (index < ordinals.length) {
+    return ordinals[index];
+  }
+  return `المختبر (${index + 1})`;
+}
 

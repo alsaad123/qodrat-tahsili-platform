@@ -1,43 +1,61 @@
 import React, { useState } from 'react';
-import { PublishedExam } from '../types/quiz';
+import { PublishedExam, UserRole, ExamSubmission } from '../types/quiz';
+import { ExamSubmissionsModal } from './ExamSubmissionsModal';
 import { 
   BookOpen, Clock, Calendar, ArrowLeft, Trash2, Edit3, 
-  Sparkles, CheckCircle2, Plus, Search, FileText
+  Sparkles, CheckCircle2, Plus, Search, AlertCircle, Lock,
+  GraduationCap, User, ShieldAlert, Users, Award
 } from 'lucide-react';
 
 interface MyExamsStageProps {
   exams: PublishedExam[];
+  userRole?: UserRole;
+  studentAttempts?: { [examId: string]: number };
+  submissions?: ExamSubmission[];
   onTakeExam: (exam: PublishedExam) => void;
   onEditExam: (exam: PublishedExam) => void;
   onDeleteExam: (id: string) => void;
   onGoToUpload: () => void;
+  onViewSubmission?: (submission: ExamSubmission, exam: PublishedExam) => void;
+  onDeleteSubmission?: (submissionId: string) => void;
 }
 
 export const MyExamsStage: React.FC<MyExamsStageProps> = ({
   exams,
+  userRole = 'teacher',
+  studentAttempts = {},
+  submissions = [],
   onTakeExam,
   onEditExam,
   onDeleteExam,
-  onGoToUpload
+  onGoToUpload,
+  onViewSubmission = () => {},
+  onDeleteSubmission
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedExamForSubmissions, setSelectedExamForSubmissions] = useState<PublishedExam | null>(null);
 
   const filteredExams = exams.filter(exam => 
     exam.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '';
     try {
       const d = new Date(dateStr);
       return d.toLocaleDateString('ar-SA', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     } catch {
       return dateStr;
     }
   };
+
+  const isStudent = userRole === 'student';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 animate-fadeIn">
@@ -46,32 +64,42 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[#3b4cb8] border border-indigo-100">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>الاختبارات الجاهزة والمتاحة للطلاب</span>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+              isStudent 
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                : 'bg-indigo-50 text-[#3b4cb8] border border-indigo-100'
+            }`}>
+              {isStudent ? <User className="w-3.5 h-3.5" /> : <GraduationCap className="w-3.5 h-3.5" />}
+              <span>{isStudent ? 'بوابة الطالب • جلسات الاختبار' : 'إدارة الاختبارات المنشورة'}</span>
             </span>
             <span className="text-xs text-slate-500 font-bold bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-xs">
-              {exams.length} اختبار
+              {exams.length} {exams.length === 1 ? 'اختبار' : 'اختبارات'}
             </span>
           </div>
+
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            اختباراتي المنشورة
+            {isStudent ? 'الاختبارات التدريبية المتاحة' : 'اختباراتي المنشورة'}
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            اختر أي اختبار للدخول وحله مباشرة من وجهة نظر الطالب، أو قم بتعديله وإدارته
+            {isStudent 
+              ? 'اختر الاختبار المطلوب لتقديمه وحله وفق المدة المحددة والمحاولات المسموحة' 
+              : 'اختر أي اختبار للدخول ومعاينته من وجهة نظر الطالب، أو قم بتعديله وإدارته'}
           </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={onGoToUpload}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-indigo-500/15 transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>رفع واستخراج اختبار جديد</span>
-          </button>
-        </div>
+        {/* Create new exam button (Teacher only) */}
+        {!isStudent && (
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={onGoToUpload}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-indigo-500/15 transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>رفع واستخراج اختبار جديد</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Search Bar (if at least 2 exams) */}
@@ -82,8 +110,8 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="البحث في اختباراتي..."
-            className="w-full bg-white border border-slate-200 rounded-xl pr-10 pl-4 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#3b4cb8] shadow-xs"
+            placeholder="البحث في قائمة الاختبارات..."
+            className="w-full bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-700 rounded-xl pr-10 pl-4 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-[#3b4cb8] shadow-xs"
           />
         </div>
       )}
@@ -93,11 +121,29 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredExams.map((exam) => {
             const hasDuration = exam.settings?.durationMinutes && exam.settings.durationMinutes > 0;
+            const maxAttempts = exam.settings?.maxAttempts ?? 1;
+            const attemptsUsed = studentAttempts[exam.id] || 0;
+            const hasAttemptLimit = maxAttempts > 0;
+            const isAttemptsExceeded = isStudent && hasAttemptLimit && attemptsUsed >= maxAttempts;
+
+            // Date validation for students
+            const now = new Date();
+            const hasDateRange = Boolean(exam.settings?.enableDateRange);
+            const isBeforeStart = isStudent && hasDateRange && exam.settings?.startDate 
+              ? new Date(exam.settings.startDate) > now 
+              : false;
+            const isAfterEnd = isStudent && hasDateRange && exam.settings?.endDate 
+              ? new Date(exam.settings.endDate) < now 
+              : false;
+
+            const isStudentBlocked = isAttemptsExceeded || isBeforeStart || isAfterEnd;
 
             return (
               <div
                 key={exam.id}
-                className="bg-white border border-[#e2e8f0] hover:border-[#cbd5e1] rounded-2xl p-5 shadow-stitch-card hover:shadow-md transition-all flex flex-col justify-between group"
+                className={`bg-white dark:bg-[#151c2c] border rounded-2xl p-5 shadow-stitch-card hover:shadow-md transition-all flex flex-col justify-between group ${
+                  isStudentBlocked ? 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 opacity-90' : 'border-[#e2e8f0] dark:border-slate-800 hover:border-[#cbd5e1] dark:hover:border-slate-700'
+                }`}
               >
                 <div>
                   {/* Card Header Badges */}
@@ -114,58 +160,142 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#3b4cb8] transition-colors mb-2 line-clamp-2">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#3b4cb8] dark:group-hover:text-indigo-400 transition-colors mb-2 line-clamp-2">
                     {exam.title}
                   </h3>
 
                   {/* Settings summary */}
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-5">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mb-4">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5 text-slate-400" />
                       <span>{hasDuration ? `${exam.settings.durationMinutes} دقيقة` : 'بدون توقيت'}</span>
                     </div>
 
-                    {exam.settings?.maxAttempts ? (
-                      <span>• {exam.settings.maxAttempts} محاولات مسموحة</span>
-                    ) : null}
+                    {hasAttemptLimit ? (
+                      <span className="text-slate-500">
+                        • {maxAttempts} {maxAttempts === 1 ? 'محاولة مسموحة' : 'محاولات مسموحة'}
+                      </span>
+                    ) : (
+                      <span>• محاولات غير محدودة</span>
+                    )}
                   </div>
+
+                  {/* Student Status Banners */}
+                  {isStudent && (
+                    <div className="mb-4 space-y-1.5">
+                      {/* Attempts progress */}
+                      {hasAttemptLimit && (
+                        <div className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                          isAttemptsExceeded 
+                            ? 'bg-red-50 text-red-700 border border-red-200' 
+                            : 'bg-slate-100 text-slate-700'
+                        }`}>
+                          <span>محاولاتك:</span>
+                          <span className="font-bold">{attemptsUsed} من {maxAttempts}</span>
+                        </div>
+                      )}
+
+                      {/* Date Range Status */}
+                      {hasDateRange && isBeforeStart && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                          <Lock className="w-3 h-3 shrink-0" />
+                          <span>يبدأ في: {formatDate(exam.settings?.startDate)}</span>
+                        </div>
+                      )}
+
+                      {hasDateRange && isAfterEnd && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-red-50 text-red-800 border border-red-200">
+                          <ShieldAlert className="w-3 h-3 shrink-0" />
+                          <span>انتهت فترة الاختبار</span>
+                        </div>
+                      )}
+
+                      {hasDateRange && !isBeforeStart && !isAfterEnd && exam.settings?.endDate && (
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] text-slate-500">
+                          <span>متاح حتى: {formatDate(exam.settings.endDate)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}
                 <div className="pt-4 border-t border-slate-100 space-y-2">
                   <button
                     type="button"
+                    disabled={isStudent && isStudentBlocked}
                     onClick={() => onTakeExam(exam)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all ${
+                      isStudent && isStudentBlocked
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        : 'bg-[#3b4cb8] hover:bg-[#312e81] text-white cursor-pointer shadow-indigo-500/10'
+                    }`}
                   >
-                    <span>دخول الاختبار (طالب)</span>
-                    <ArrowLeft className="w-4 h-4" />
+                    {isStudent ? (
+                      isAttemptsExceeded ? (
+                        <span>استنفدت المحاولات ({attemptsUsed}/{maxAttempts})</span>
+                      ) : isBeforeStart ? (
+                        <span>غير متاح حالياً</span>
+                      ) : isAfterEnd ? (
+                        <span>انتهت فترة التقديم</span>
+                      ) : (
+                        <>
+                          <span>دخول وبدء الاختبار</span>
+                          <ArrowLeft className="w-4 h-4" />
+                        </>
+                      )
+                    ) : (
+                      <>
+                        <span>دخول الاختبار (طالب)</span>
+                        <ArrowLeft className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
 
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onEditExam(exam)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors cursor-pointer"
-                      title="تعديل الأسئلة والإعدادات"
-                    >
-                      <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-                      <span>تعديل</span>
-                    </button>
+                  {/* Teacher actions (Submissions, Edit & Delete) - Strictly hidden for students */}
+                  {!isStudent && (
+                    <div className="space-y-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedExamForSubmissions(exam)}
+                        className="w-full flex items-center justify-between py-2 px-3.5 bg-indigo-50/80 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-[#3b4cb8] dark:text-indigo-300 text-xs font-bold rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer shadow-2xs"
+                        title="عرض نتائج ودرجات المختبرين لهذا الاختبار"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-[#3b4cb8] dark:text-indigo-400" />
+                          <span>نتائج المختبرين</span>
+                        </div>
+                        <span className="bg-[#3b4cb8] text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-xs">
+                          {submissions.filter(s => s.examId === exam.id).length} مختبر
+                        </span>
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (window.confirm(`هل أنت متأكد من حذف اختبار "${exam.title}" من اختباراتي؟`)) {
-                          onDeleteExam(exam.id);
-                        }
-                      }}
-                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100 transition-colors cursor-pointer"
-                      title="حذف الاختبار"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onEditExam(exam)}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                          title="تعديل الأسئلة والإعدادات"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                          <span>تعديل</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`هل أنت متأكد من حذف اختبار "${exam.title}" من اختباراتي؟`)) {
+                              onDeleteExam(exam.id);
+                            }
+                          }}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg border border-transparent hover:border-red-100 dark:hover:border-red-900/40 transition-colors cursor-pointer"
+                          title="حذف الاختبار"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -173,6 +303,7 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
           })}
         </div>
       ) : (
+
         /* Empty State */
         <div className="bg-white border border-[#e2e8f0] rounded-2xl p-8 sm:p-12 text-center max-w-lg mx-auto shadow-stitch-card">
           <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 text-[#3b4cb8] flex items-center justify-center mx-auto mb-4">
@@ -180,27 +311,43 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
           </div>
 
           <h3 className="text-lg font-bold text-slate-900 mb-2">
-            {searchQuery ? 'لا توجد نتائج مطابقة لبحثك' : 'لا توجد اختبارات منشورة حتى الآن'}
+            {searchQuery ? 'لا توجد نتائج مطابقة لبحثك' : (isStudent ? 'لا توجد اختبارات متاحة حالياً' : 'لا توجد اختبارات منشورة حتى الآن')}
           </h3>
 
           <p className="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed">
             {searchQuery 
               ? 'جرّب البحث بكلمة أخرى أو مسح شريط البحث' 
+              : isStudent 
+              ? 'يرجى الانتظار حتى يقوم المعلم بنشر اختبار جديد ليظهر في هذه الصفحة.'
               : 'قم برفع ملف PDF أو صور لنماذج القدرات والتحصيلي، ثم راجع الأسئلة واضغط "نشر الاختبار" ليظهر هنا للطلاب.'
             }
           </p>
 
-          <button
-            type="button"
-            onClick={onGoToUpload}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>رفع أول اختبار الآن</span>
-          </button>
+          {!isStudent && (
+            <button
+              type="button"
+              onClick={onGoToUpload}
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>رفع أول اختبار الآن</span>
+            </button>
+          )}
         </div>
       )}
+
+      {/* Submissions Modal for Teacher */}
+      <ExamSubmissionsModal
+        isOpen={Boolean(selectedExamForSubmissions)}
+        exam={selectedExamForSubmissions}
+        submissions={submissions}
+        onClose={() => setSelectedExamForSubmissions(null)}
+        onViewSubmission={onViewSubmission}
+        onDeleteSubmission={onDeleteSubmission}
+        onTakeExamAsStudent={onTakeExam}
+      />
 
     </div>
   );
 };
+
