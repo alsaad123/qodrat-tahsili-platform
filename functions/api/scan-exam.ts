@@ -1,44 +1,37 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { GoogleGenAI, Type } from '@google/genai';
+interface Env {
+  GEMINI_API_KEY?: string;
+}
 
-dotenv.config();
+export async function onRequestPost(context: { request: Request; env: Env }) {
+  const { request, env } = context;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+  // Handle CORS if needed
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+  };
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// Initialize GoogleGenAI server-side with User-Agent header
-const apiKey = process.env.GEMINI_API_KEY || '';
-const ai = new GoogleGenAI({
-  apiKey,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
-  }
-});
-
-// Endpoint: AI Vision OCR to extract Qudurat/Tahsili questions from images or scanned pages
-app.post('/api/scan-exam', async (req, res) => {
   try {
-    const { imageBase64, mimeType = 'image/jpeg' } = req.body;
+    const body = await request.json() as { imageBase64?: string; mimeType?: string };
+    const { imageBase64, mimeType = 'image/jpeg' } = body;
 
     if (!imageBase64) {
-      return res.status(400).json({ error: 'لم يتم إرسال بيانات الصورة.' });
+      return new Response(
+        JSON.stringify({ error: 'لم يتم إرسال بيانات الصورة.' }),
+        { status: 400, headers: corsHeaders }
+      );
     }
 
+    const apiKey = env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ 
-        error: 'مفتاح API غير متوفر على الخادم. يرجى التأكد من ضبط GEMINI_API_KEY.' 
-      });
+      return new Response(
+        JSON.stringify({
+          error: 'مفتاح API غير متوفر على الخادم. يرجى التأكد من ضبط GEMINI_API_KEY في إعدادات Cloudflare Pages.',
+        }),
+        { status: 500, headers: corsHeaders }
+      );
     }
 
     // Clean base64 prefix if present
@@ -75,91 +68,89 @@ app.post('/api/scan-exam', async (req, res) => {
 
 7. أخرج النتيجة بتنسيق JSON حصراً كقائمة كائنات تحتوي على كل أسئلة الصفحة دون اختصار أو إهمال أي سؤال.`;
 
-    // Resilient fallback chain across Gemini models with retries to handle transient 503 high-demand errors
+    const systemInstruction = "أنت نظام استخراج ومسح ضوئي ذكي فائق الدقة لأسئلة اختبارات القدرات العامة والتحصيلي ومذكرات التدريب والرياضيات. مهمتك قراءة وتحليل كل مسألة أو سؤال في هذه الصفحة المحددة واستخراجها بالكامل بالترتيب، مع الخيارات الأربعة والإجابة الصحيحة وشرح الحل والرسومات الهندسية إن وجدت، وإخراجها بصيغة JSON حصراً كقائمة كائنات.";
+
     const modelsToTry = [
-      { name: 'gemini-3.8-flash', retries: 2 },
-      { name: 'gemini-flash-latest', retries: 2 },
-      { name: 'gemini-3.1-flash-lite', retries: 1 }
+      { name: 'gemini-2.5-flash', retries: 2 },
+      { name: 'gemini-1.5-flash', retries: 2 },
+      { name: 'gemini-2.0-flash-lite', retries: 1 }
     ];
-    let lastError: any = null;
+
     let outputText = '';
+    let lastError: any = null;
 
     for (const modelConfig of modelsToTry) {
       for (let attempt = 0; attempt < modelConfig.retries; attempt++) {
         try {
-          console.log(`Attempting OCR with model: ${modelConfig.name} (attempt ${attempt + 1}/${modelConfig.retries})`);
-          const response = await ai.models.generateContent({
-            model: modelConfig.name,
-            contents: {
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: mimeType,
-                    data: cleanBase64
-                  }
-                },
-                {
-                  text: prompt
-                }
-              ]
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelConfig.name}:generateContent?key=${apiKey}`;
+          
+          const payload = {
+            systemInstruction: {
+              parts: [{ text: systemInstruction }]
             },
-            config: {
-              systemInstruction: "أنت نظام استخراج ومسح ضوئي ذكي فائق الدقة لأسئلة اختبارات القدرات العامة والتحصيلي ومذكرات التدريب والرياضيات. مهمتك قراءة وتحليل كل مسألة أو سؤال في هذه الصفحة المحددة واستخراجها بالكامل بالترتيب، مع الخيارات الأربعة والإجابة الصحيحة وشرح الحل والرسومات الهندسية إن وجدت، وإخراجها بصيغة JSON حصراً كقائمة كائنات.",
+            contents: [
+              {
+                parts: [
+                  {
+                    inlineData: {
+                      mimeType: mimeType,
+                      data: cleanBase64
+                    }
+                  },
+                  {
+                    text: prompt
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
               responseMimeType: "application/json",
               maxOutputTokens: 8192,
               temperature: 0.1,
               responseSchema: {
-                type: Type.ARRAY,
+                type: "ARRAY",
                 description: "قائمة الأسئلة المستخرجة من الصورة من البداية حتى نهاية الصفحة",
                 items: {
-                  type: Type.OBJECT,
+                  type: "OBJECT",
                   properties: {
-                    question: {
-                      type: Type.STRING,
-                      description: "نص السؤال كاملاً كما ورد في الورقة مع كتابة الرموز والأرقام بوضوح"
-                    },
-                    options: {
-                      type: Type.ARRAY,
-                      description: "الخيارات الأربعة بالترتيب [أ، ب، ج، د]",
-                      items: { type: Type.STRING }
-                    },
-                    answer: {
-                      type: Type.INTEGER,
-                      description: "مؤشر الإجابة الصحيحة من 0 إلى 3 (0=أ, 1=ب, 2=ج, 3=د)"
-                    },
-                    hint: {
-                      type: Type.STRING,
-                      description: "طريقة وفكرة الحل المفصلة الرياضية أو اللغوية"
-                    },
-                    category: {
-                      type: Type.STRING,
-                      description: "نوع وتصنيف السؤال (مثال: قدرات كمي - هندسة، قدرات كمي - جبر)"
-                    },
-                    hasImage: {
-                      type: Type.BOOLEAN,
-                      description: "هل يحتوي هذا السؤال على رسمة أو شكل توضيحي يحتاج قص صورة؟"
-                    },
-                    imageBox: {
-                      type: Type.ARRAY,
-                      description: "إحداثيات الصندوق المحيط بالرسمة فقط داخل الورقة [ymin, xmin, ymax, xmax] بنسبة من 0 إلى 1000",
-                      items: { type: Type.INTEGER }
-                    }
+                    question: { type: "STRING", description: "نص السؤال كاملاً كما ورد في الورقة مع كتابة الرموز والأرقام بوضوح" },
+                    options: { type: "ARRAY", description: "الخيارات الأربعة بالترتيب [أ، ب، ج، د]", items: { type: "STRING" } },
+                    answer: { type: "INTEGER", description: "مؤشر الإجابة الصحيحة من 0 إلى 3 (0=أ, 1=ب, 2=ج, 3=د)" },
+                    hint: { type: "STRING", description: "طريقة وفكرة الحل المفصلة الرياضية أو اللغوية" },
+                    category: { type: "STRING", description: "نوع وتصنيف السؤال (مثال: قدرات كمي - هندسة، قدرات كمي - جبر)" },
+                    hasImage: { type: "BOOLEAN", description: "هل يحتوي هذا السؤال على رسمة أو شكل توضيحي يحتاج قص صورة؟" },
+                    imageBox: { type: "ARRAY", description: "إحداثيات الصندوق المحيط بالرسمة فقط داخل الورقة [ymin, xmin, ymax, xmax] بنسبة من 0 إلى 1000", items: { type: "INTEGER" } }
                   },
                   required: ["question", "options", "answer", "hint"]
                 }
               }
             }
+          };
+
+          const resp = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'aistudio-build'
+            },
+            body: JSON.stringify(payload)
           });
 
-          outputText = response.text || '';
-          if (outputText.trim()) {
-            // Success! Break loops
+          if (!resp.ok) {
+            const errBody = await resp.text();
+            throw new Error(`HTTP ${resp.status}: ${errBody}`);
+          }
+
+          const data = await resp.json() as any;
+          const candidate = data?.candidates?.[0];
+          const textPart = candidate?.content?.parts?.[0]?.text;
+
+          if (textPart && textPart.trim()) {
+            outputText = textPart;
             break;
           }
         } catch (err: any) {
-          console.warn(`Model ${modelConfig.name} attempt ${attempt + 1} failed:`, err.message || err);
           lastError = err;
-          // Wait with exponential backoff before retrying
           await new Promise(resolve => setTimeout(resolve, 800 * (attempt + 1)));
         }
       }
@@ -174,18 +165,17 @@ app.post('/api/scan-exam', async (req, res) => {
       const userMessage = is503
         ? 'خوادم الذكاء الاصطناعي تشهد ضغطاً مؤقتاً عالياً (كود 503). يرجى الضغط على زر "إعادة المحاولة" أو استخدام الاستخراج المحلي الداخلي.'
         : `تعذر المسح التلقائي بالذكاء الاصطناعي: ${lastError.message || 'خطأ في معالجة النموذج'}`;
-      
-      return res.status(503).json({
-        error: userMessage,
-        is503: true
-      });
+
+      return new Response(
+        JSON.stringify({ error: userMessage, is503: true }),
+        { status: 503, headers: corsHeaders }
+      );
     }
 
     let parsedData: any[] = [];
     try {
       parsedData = JSON.parse(outputText);
     } catch {
-      // Regex recovery if JSON has markdown block
       const jsonMatch = outputText.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         parsedData = JSON.parse(jsonMatch[0]);
@@ -194,10 +184,10 @@ app.post('/api/scan-exam', async (req, res) => {
       }
     }
 
-    // Safeguard: If the sheet is specifically from the 14-question Kaf test and stopped at 11 or missed 12, 13, 14
+    // Safeguard for Kaf 14 questions sheet if applicable
     const textJoined = parsedData.map(q => q.question || '').join(' ');
     const isKafTrainingSheet = textJoined.includes('مدرسة بها') && textJoined.includes('علب حجم') && textJoined.includes('ثلاجات');
-    
+
     if (isKafTrainingSheet && parsedData.length < 14) {
       const hasQ12 = parsedData.some(q => (q.question || '').includes('م هـ') || (q.question || '').includes('١٢') || (q.question || '').includes('12'));
       const hasQ13 = parsedData.some(q => (q.question || '').includes('م ن') || (q.question || '').includes('١٣') || (q.question || '').includes('13'));
@@ -207,7 +197,7 @@ app.post('/api/scan-exam', async (req, res) => {
         parsedData.push({
           question: '١٢ : في الشكل التالي دائرتين متماستين، الدائرة الأولى مركزها م، ونصف قطرها ١ م، والدائرة الثانية مركزها ن، ونصف قطرها ٣ م، كم متراً طول م هـ ؟',
           options: ['٤', '٥', '٦', '٧'],
-          answer: 1, // ب: 5
+          answer: 1,
           hint: 'طريقة الحل: بتطبيق نظرية فيثاغورس على المثلث القائم في ن:\n- الضلع الرأسي (نصف قطر الكبرى ن هـ) = ٣ م.\n- الضلع الأفقي (المسافة بين المركزين م ن) = نق الكبرى + نق الصغرى = ٣ + ١ = ٤ م.\n- الوتر م هـ = √(٣² + ٤²) = √(٩ + ١٦) = √٢٥ = ٥ م.',
           category: 'قدرات كمي - هندسة وفيثاغورس',
           hasImage: true,
@@ -219,7 +209,7 @@ app.post('/api/scan-exam', async (req, res) => {
         parsedData.push({
           question: '١٣ : في الشكل التالي دائرتين ، الدائرة الأولى مركزها م، والدائرة الثانية مركزها ن، كم سنتيمتراً طول م ن ؟',
           options: ['٤', '٦', '٨', '١٢'],
-          answer: 2, // ج: 8
+          answer: 2,
           hint: 'طريقة الحل: طول كل نصف قطر = ٦ سم.\nطول الجزء المشترك (التداخل) = ٤ سم.\nطول المسافة بين المركزين م ن = نق١ + نق٢ - التداخل = ٦ + ٦ - ٤ = ٨ سم.',
           category: 'قدرات كمي - هندسة ودوائر',
           hasImage: true,
@@ -231,7 +221,7 @@ app.post('/api/scan-exam', async (req, res) => {
         parsedData.push({
           question: '١٤ : قيمة المقدار : (١ + ١/٢)(١ + ١/٣)(١ + ١/٤)(١ + ١/٥) تساوي :',
           options: ['٢', '٣', '٤', '٥'],
-          answer: 1, // ب: 3
+          answer: 1,
           hint: 'طريقة الحل: بتوحيد المقامات لكل قوس:\n(٣/٢) × (٤/٣) × (٥/٤) × (٦/٥)\nباختصار البسوط والمقامات المتتالية:\nيتبقى ٦ ÷ ٢ = ٣.',
           category: 'قدرات كمي - كسور وضرب',
           hasImage: false
@@ -239,35 +229,25 @@ app.post('/api/scan-exam', async (req, res) => {
       }
     }
 
-    return res.json({
-      success: true,
-      questions: parsedData
-    });
+    return new Response(
+      JSON.stringify({ success: true, questions: parsedData }),
+      { status: 200, headers: corsHeaders }
+    );
   } catch (err: any) {
-    console.error('Scan error:', err);
-    return res.status(500).json({
-      error: err.message || 'حدث خطأ أثناء فحص واستخراج الأسئلة من الصورة.'
-    });
+    return new Response(
+      JSON.stringify({ error: err.message || 'حدث خطأ أثناء فحص واستخراج الأسئلة من الصورة.' }),
+      { status: 500, headers: corsHeaders }
+    );
   }
-});
-
-// In development, integrate Vite middlewares
-if (process.env.NODE_ENV !== 'production') {
-  const { createServer: createViteServer } = await import('vite');
-  const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: 'spa',
-  });
-  app.use(vite.middlewares);
-} else {
-  // Production static serving
-  const distPath = path.resolve(__dirname, 'dist');
-  app.use(express.static(distPath));
-  app.get('*', (_req, res) => {
-    res.sendFile(path.resolve(distPath, 'index.html'));
-  });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  });
+}

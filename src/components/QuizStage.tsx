@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Question, StudentAnswers, StudentScratchpads, StudentFlags, OPTION_LABELS, ExamSettings } from '../types/quiz';
+import { Question, StudentAnswers, StudentScratchpads, StudentFlags, OPTION_LABELS, ExamSettings, UserRole } from '../types/quiz';
 import { 
   ArrowLeft, ArrowRight, Bookmark, CheckCircle2, 
   Clock, Edit3, Trash2, Check, Lightbulb,
   Eraser, PenTool, Undo2, GripVertical, ListOrdered, Sparkles, RotateCcw
 } from 'lucide-react';
+import { MathFormulaRenderer } from './MathFormulaRenderer';
 
 interface QuizStageProps {
   questions: Question[];
@@ -14,6 +15,7 @@ interface QuizStageProps {
   flags: StudentFlags;
   settings?: ExamSettings;
   attemptNumber?: number;
+  userRole?: UserRole;
   onAnswerChange: (questionId: string, answerIdx: number) => void;
   onScratchpadChange: (questionId: string, text: string) => void;
   onToggleFlag: (questionId: string) => void;
@@ -29,6 +31,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
   flags,
   settings,
   attemptNumber = 1,
+  userRole = 'teacher',
   onAnswerChange,
   onScratchpadChange,
   onToggleFlag,
@@ -498,22 +501,22 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               )}
             </div>
 
-            {/* Question Text */}
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 leading-relaxed whitespace-pre-line">
-              {currentQ.question}
+            {/* Question Text with Math/Formula Rendering */}
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed whitespace-pre-line">
+              <MathFormulaRenderer text={currentQ.question} />
             </h2>
 
             {/* Diagram SVG if available */}
             {currentQ.diagramSvg && (
               <div 
-                className="my-1.5 p-2 bg-[#f8fafc] rounded-xl border border-slate-200 flex flex-col items-center justify-center max-h-24 sm:max-h-28 overflow-hidden"
+                className="my-1.5 p-2 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center max-h-24 sm:max-h-28 overflow-hidden"
                 dangerouslySetInnerHTML={{ __html: currentQ.diagramSvg }}
               />
             )}
 
             {/* Image if available */}
             {currentQ.imageUrl && (
-              <div className="my-1.5 p-1 bg-[#f8fafc] rounded-xl border border-slate-200 flex justify-center">
+              <div className="my-1.5 p-1 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-800 flex justify-center">
                 <img 
                   src={currentQ.imageUrl} 
                   alt="رسمة السؤال التوضيحية" 
@@ -524,11 +527,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
             {/* Collapsible Hint */}
             {showHint && currentQ.hint && (
-              <div className="mt-1.5 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed animate-fadeIn">
+              <div className="mt-1.5 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs leading-relaxed animate-fadeIn">
                 <p className="font-bold flex items-center gap-1 mb-0.5 text-[11px]">
                   <Sparkles className="w-3 h-3 text-amber-600" /> طريقة الحل المقترحة:
                 </p>
-                <p className="whitespace-pre-line font-sans text-xs">{currentQ.hint}</p>
+                <div className="whitespace-pre-line font-sans text-xs">
+                  <MathFormulaRenderer text={currentQ.hint} />
+                </div>
               </div>
             )}
           </div>
@@ -541,14 +546,14 @@ export const QuizStage: React.FC<QuizStageProps> = ({
             {/* 1. Answers Box (Separate Card, Compact Height, Resizable Width) */}
             <div
               style={{ width: `${optionsWidthPercent}%` }}
-              className="bg-white border border-[#e2e8f0] rounded-2xl p-3 shadow-stitch-card flex flex-col h-fit max-h-full shrink-0 relative overflow-hidden"
+              className="bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 shadow-stitch-card flex flex-col h-fit max-h-full shrink-0 relative overflow-hidden"
             >
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 shrink-0">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 shrink-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-4 h-4 rounded bg-[#eef2ff] text-[#3b4cb8] flex items-center justify-center font-bold text-[10px]">
+                  <span className="w-4 h-4 rounded bg-[#eef2ff] dark:bg-indigo-950 text-[#3b4cb8] dark:text-indigo-400 flex items-center justify-center font-bold text-[10px]">
                     ✓
                   </span>
-                  <h3 className="font-bold text-slate-900 text-xs">خيارات الإجابة</h3>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-xs">خيارات الإجابة</h3>
                 </div>
                 <span className="text-[10px] text-slate-400">حدد إجابة</span>
               </div>
@@ -565,26 +570,26 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                       onClick={() => onAnswerChange(currentQ.id, optIdx)}
                       className={`w-full text-right p-2 sm:p-2.5 rounded-xl border transition-all flex items-center gap-2 group cursor-pointer ${
                         isSelected
-                          ? 'bg-[#eef2ff] border-[#3b4cb8] shadow-xs ring-2 ring-[#3b4cb8]/20 text-[#3b4cb8] font-bold'
-                          : 'bg-[#f8fafc] hover:bg-white border-slate-200 hover:border-slate-300 text-slate-800'
+                          ? 'bg-[#eef2ff] dark:bg-indigo-950/60 border-[#3b4cb8] shadow-xs ring-2 ring-[#3b4cb8]/20 text-[#3b4cb8] dark:text-indigo-300 font-bold'
+                          : 'bg-[#f8fafc] dark:bg-[#1a2236] hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 hover:border-slate-300 text-slate-800 dark:text-slate-200'
                       }`}
                     >
                       <span className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
                         isSelected
                           ? 'bg-[#3b4cb8] text-white shadow-xs'
-                          : 'bg-white text-slate-600 border border-slate-200 group-hover:border-[#3b4cb8]'
+                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 group-hover:border-[#3b4cb8]'
                       }`}>
                         {label}
                       </span>
 
-                      <span className="text-xs flex-1 font-medium leading-relaxed truncate">
-                        {optText}
+                      <span className="text-xs sm:text-sm flex-1 font-medium leading-relaxed">
+                        <MathFormulaRenderer text={optText} />
                       </span>
 
                       <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                         isSelected
                           ? 'border-[#3b4cb8] bg-[#3b4cb8] text-white'
-                          : 'border-slate-300 bg-white group-hover:border-slate-400'
+                          : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400'
                       }`}>
                         {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                       </div>
@@ -1062,16 +1067,18 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         </div>
       )}
 
-      {/* Return to Edit / Review page button (bottom-right) */}
-      <button
-        type="button"
-        onClick={onBackToReview}
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 bg-white/95 hover:bg-white text-slate-700 hover:text-[#3b4cb8] rounded-full border border-[#e2e8f0] shadow-md hover:shadow-lg transition-all cursor-pointer font-bold text-xs sm:text-sm group"
-        title="الرجوع لصفحة التعديل والمراجعة"
-      >
-        <ArrowRight className="w-4 h-4 text-[#3b4cb8] group-hover:-translate-x-0.5 transition-transform" />
-        <span>الرجوع لصفحة التعديل</span>
-      </button>
+      {/* Return to Edit / Review page button (bottom-right) - Only for Teacher */}
+      {userRole === 'teacher' && (
+        <button
+          type="button"
+          onClick={onBackToReview}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 bg-white/95 hover:bg-white text-slate-700 hover:text-[#3b4cb8] rounded-full border border-[#e2e8f0] shadow-md hover:shadow-lg transition-all cursor-pointer font-bold text-xs sm:text-sm group"
+          title="الرجوع لصفحة التعديل والمراجعة"
+        >
+          <ArrowRight className="w-4 h-4 text-[#3b4cb8] group-hover:-translate-x-0.5 transition-transform" />
+          <span>الرجوع لصفحة التعديل</span>
+        </button>
+      )}
 
     </div>
   );
