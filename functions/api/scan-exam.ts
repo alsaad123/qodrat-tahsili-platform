@@ -71,9 +71,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     const systemInstruction = "أنت نظام استخراج ومسح ضوئي ذكي فائق الدقة لأسئلة اختبارات القدرات العامة والتحصيلي ومذكرات التدريب والرياضيات. مهمتك قراءة وتحليل كل مسألة أو سؤال في هذه الصفحة المحددة واستخراجها بالكامل بالترتيب، مع الخيارات الأربعة والإجابة الصحيحة وشرح الحل والرسومات الهندسية إن وجدت، وإخراجها بصيغة JSON حصراً كقائمة كائنات.";
 
     const modelsToTry = [
-      { name: 'gemini-2.5-flash', retries: 2 },
-      { name: 'gemini-1.5-flash', retries: 2 },
-      { name: 'gemini-2.0-flash-lite', retries: 1 }
+      { name: 'gemini-3.8-flash', retries: 2 },
+      { name: 'gemini-3.5-flash-lite', retries: 2 },
+      { name: 'gemini-3.1-flash-lite', retries: 1 }
     ];
 
     let outputText = '';
