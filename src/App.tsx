@@ -586,7 +586,7 @@ export default function App() {
   };
 
   return (
-    <div className={`bg-[#f4f7fb] dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-[#3b4cb8] selection:text-white font-sans ${currentStage === 'quiz' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`} dir="rtl">
+    <div className={`bg-[#f4f7fb] dark:bg-nightfall-canvas text-slate-900 dark:text-nightfall-text flex flex-col selection:bg-[#3b4cb8] selection:text-white font-sans ${currentStage === 'quiz' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`} dir="rtl">
       
       {/* Top Navbar */}
       {currentStage !== 'quiz' && (
@@ -710,10 +710,10 @@ export default function App() {
 
       {/* Modern EdTech Footer */}
       {currentStage !== 'quiz' && (
-        <footer className="py-5 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-[#e2e8f0] dark:border-slate-800 bg-white/50 dark:bg-[#151c2c]/50">
+        <footer className="py-5 text-center text-xs text-slate-500 dark:text-nightfall-variant border-t border-[#e2e8f0] dark:border-nightfall-border bg-white/50 dark:bg-nightfall-card/50">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>منصة تدريب القدرات والتحصيلي • نظام التصميم العربي EdTech</span>
-            <span className="text-slate-400 dark:text-slate-500">بيئة اختبارات قياس تفاعلية ومسودة حل رياضية</span>
+            <span className="text-slate-400 dark:text-nightfall-outline">بيئة اختبارات قياس تفاعلية ومسودة حل رياضية</span>
           </div>
         </footer>
       )}

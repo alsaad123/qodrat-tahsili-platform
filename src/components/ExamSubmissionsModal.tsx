@@ -69,22 +69,22 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-scaleUp text-slate-900 dark:text-slate-100"
+        className="bg-white dark:bg-[#171b26] border border-slate-200 dark:border-[#262a35] rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-scaleUp text-slate-900 dark:text-[#dfe2f1]"
         dir="rtl"
       >
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-[#1a2236]/60">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-[#262a35] bg-[#f8fafc] dark:bg-[#171b26]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-[#3b4cb8] dark:text-indigo-400">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-[#262a35] border border-indigo-100 dark:border-[#313540] flex items-center justify-center text-[#4f46e5] dark:text-[#c0c1ff]">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-[#dfe2f1] flex items-center gap-2">
                 <span>نتائج المختبرين</span>
-                <span className="text-xs font-normal text-slate-400">({exam.title})</span>
+                <span className="text-xs font-normal text-slate-400 dark:text-[#908fa0]">({exam.title})</span>
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-[#c7c4d7] mt-0.5">
                 عرض تقارير إجابات ودرجات الطلاب الذين قدموا هذا الاختبار
               </p>
             </div>
@@ -93,7 +93,7 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-[#dfe2f1] hover:bg-slate-200/50 dark:hover:bg-[#262a35] rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,10 +101,10 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
 
         {/* Stats Row */}
         {totalExaminees > 0 && (
-          <div className="grid grid-cols-3 gap-3 px-6 py-4 bg-white dark:bg-[#151c2c] border-b border-slate-100 dark:border-slate-800">
-            <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-700 rounded-2xl p-3 text-center">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-0.5">إجمالي المختبرين</span>
-              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{totalExaminees}</span>
+          <div className="grid grid-cols-3 gap-3 px-6 py-4 bg-white dark:bg-[#171b26] border-b border-slate-100 dark:border-[#262a35]">
+            <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-2xl p-3 text-center">
+              <span className="text-xs font-bold text-slate-500 dark:text-[#c7c4d7] block mb-0.5">إجمالي المختبرين</span>
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-[#dfe2f1]">{totalExaminees}</span>
             </div>
 
             <div className="bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-3 text-center">
@@ -112,9 +112,9 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
               <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">{avgPercentage}٪</span>
             </div>
 
-            <div className="bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-3 text-center">
-              <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 block mb-0.5">أعلى نتيجة</span>
-              <span className="text-xl sm:text-2xl font-black text-[#3b4cb8] dark:text-indigo-400">{maxScore}٪</span>
+            <div className="bg-indigo-50/60 dark:bg-[#262a35] border border-indigo-200 dark:border-[#313540] rounded-2xl p-3 text-center">
+              <span className="text-xs font-bold text-[#4f46e5] dark:text-[#c0c1ff] block mb-0.5">أعلى نتيجة</span>
+              <span className="text-xl sm:text-2xl font-black text-[#4f46e5] dark:text-[#c0c1ff]">{maxScore}٪</span>
             </div>
           </div>
         )}
@@ -125,13 +125,13 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
             <>
               {totalExaminees > 3 && (
                 <div className="relative mb-3">
-                  <Search className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-slate-400 dark:text-[#908fa0] absolute right-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث عن مختبر..."
-                    className="w-full bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-700 rounded-xl pr-9 pl-3 py-2 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#3b4cb8]"
+                    className="w-full bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl pr-9 pl-3 py-2 text-xs text-slate-800 dark:text-[#dfe2f1] focus:outline-none focus:border-[#4f46e5]"
                   />
                 </div>
               )}
@@ -142,32 +142,32 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
                 return (
                   <div
                     key={sub.id}
-                    className="bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-xs"
+                    className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-300 dark:hover:border-[#6366f1] transition-all shadow-xs"
                   >
                     {/* Left: Examinee Identity & Details */}
                     <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 shadow-xs shrink-0">
-                        <UserCheck className="w-5 h-5 text-[#3b4cb8] dark:text-indigo-400" />
+                      <div className="w-11 h-11 rounded-xl bg-white dark:bg-[#262a35] border border-slate-200 dark:border-[#313540] flex items-center justify-center font-black text-slate-700 dark:text-[#dfe2f1] shadow-xs shrink-0">
+                        <UserCheck className="w-5 h-5 text-[#4f46e5] dark:text-[#c0c1ff]" />
                       </div>
 
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                          <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-[#dfe2f1]">
                             {sub.examineeName}
                           </h4>
-                          <span className="text-[11px] font-semibold text-slate-500 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
+                          <span className="text-[11px] font-semibold text-slate-500 dark:text-[#c7c4d7] bg-white dark:bg-[#262a35] px-2 py-0.5 rounded-md border border-slate-200 dark:border-[#313540]">
                             المحاولة ({sub.attemptNumber})
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-[#c7c4d7] mt-1">
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-[#908fa0]" />
                             <span>{formatDate(sub.submittedAt)}</span>
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-[#908fa0]" />
                             <span>{formatTime(sub.timeSpentSeconds)}</span>
                           </span>
                         </div>
@@ -175,15 +175,15 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
                     </div>
 
                     {/* Right: Score and View Action Button */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-[#313540]">
                       
                       {/* Score Badge */}
                       <div className="text-right">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                          <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-[#dfe2f1]">
                             {sub.correctCount}
                           </span>
-                          <span className="text-xs text-slate-400 font-semibold">
+                          <span className="text-xs text-slate-400 dark:text-[#908fa0] font-semibold">
                             / {sub.totalQuestions}
                           </span>
                         </div>
@@ -203,7 +203,7 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
                           onViewSubmission(sub, exam);
                           onClose();
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all cursor-pointer"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_12px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
                         title="عرض ورقة الإجابة بالتفصيل"
                       >
                         <Eye className="w-4 h-4" />
@@ -234,13 +234,13 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
           ) : (
             /* Empty State */
             <div className="text-center py-12 px-4">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-[#3b4cb8] dark:text-indigo-400 mx-auto mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#262a35] border border-indigo-100 dark:border-[#313540] flex items-center justify-center text-[#4f46e5] dark:text-[#c0c1ff] mx-auto mb-4">
                 <Users className="w-8 h-8" />
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1.5">
+              <h3 className="text-base font-bold text-slate-900 dark:text-[#dfe2f1] mb-1.5">
                 لا توجد نتائج مسجلة لهذا الاختبار بعد
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-[#c7c4d7] max-w-md mx-auto mb-6 leading-relaxed">
                 بمجرد أن يقوم الطلاب بفتح الاختبار وحل الأسئلة وتسليمها، ستظهر تقاريرهم ودرجاتهم وتفاصيل إجاباتهم هنا تلقائياً لتقييم أدائهم.
               </p>
 
@@ -251,7 +251,7 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
                     onClose();
                     onTakeExamAsStudent(exam);
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_12px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span>دخول تجريبي كطالب لحل الاختبار</span>
@@ -262,15 +262,15 @@ export const ExamSubmissionsModal: React.FC<ExamSubmissionsModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-[#f8fafc] dark:bg-[#1a2236]/60">
-          <span className="text-xs text-slate-500">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-[#262a35] bg-[#f8fafc] dark:bg-[#171b26]">
+          <span className="text-xs text-slate-500 dark:text-[#c7c4d7]">
             {totalExaminees > 0 ? `تم تسجيل ${totalExaminees} جلسة اختبار` : 'في انتظار أول مختبر'}
           </span>
 
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold rounded-xl transition-colors cursor-pointer"
+            className="px-5 py-2 bg-slate-200 dark:bg-[#262a35] hover:bg-slate-300 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540] text-xs sm:text-sm font-bold rounded-xl transition-colors cursor-pointer"
           >
             إغلاق النافذة
           </button>

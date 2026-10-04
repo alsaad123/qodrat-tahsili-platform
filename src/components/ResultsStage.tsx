@@ -157,21 +157,21 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
       
       {/* Teacher Examinee Review Mode Banner */}
       {viewingSubmission && (
-        <div className="mb-6 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="mb-6 bg-indigo-50 dark:bg-[#171b26] border border-indigo-200 dark:border-[#262a35] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#3b4cb8] text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-[#4f46e5] text-white flex items-center justify-center font-black shrink-0 shadow-xs">
               <User className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                <span className="text-xs font-bold text-[#4f46e5] dark:text-[#c0c1ff] bg-white dark:bg-[#262a35] px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-[#313540]">
                   لوحة المعلم • استعراض ورقة إجابة
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 dark:text-[#c7c4d7]">
                   المحاولة ({viewingSubmission.attemptNumber})
                 </span>
               </div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-[#dfe2f1] mt-0.5">
                 ورقة إجابة الطالب: {viewingSubmission.examineeName}
               </h3>
             </div>
@@ -181,7 +181,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
             <button
               type="button"
               onClick={onBackToSubmissions}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[#3b4cb8] dark:text-indigo-300 text-xs sm:text-sm font-bold rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer shadow-xs"
+              className="flex items-center justify-center gap-1.5 px-4 py-2 bg-white dark:bg-[#262a35] hover:bg-slate-100 dark:hover:bg-[#313540] text-[#4f46e5] dark:text-[#c0c1ff] text-xs sm:text-sm font-bold rounded-xl border border-indigo-200 dark:border-[#313540] transition-all cursor-pointer shadow-xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>العودة لقائمة نتائج المختبرين</span>
@@ -191,8 +191,8 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
       )}
 
       {/* Score Summary Card */}
-      <div className="bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-3xl p-6 sm:p-10 mb-10 shadow-stitch-card relative overflow-hidden">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-8 border-b border-slate-100 dark:border-slate-800">
+      <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-3xl p-6 sm:p-10 mb-10 shadow-stitch-card relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-8 border-b border-slate-100 dark:border-[#262a35]">
           
           {/* Main Score & Grade */}
           <div className="text-center md:text-right">
@@ -201,17 +201,17 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
               <span>{rating.label}</span>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#dfe2f1] mb-2">
               {viewingSubmission ? `نتيجة (${viewingSubmission.examineeName}) في: ${examTitle}` : `نتيجتك في: ${examTitle}`}
             </h1>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs sm:text-sm text-slate-500 dark:text-[#c7c4d7]">
               <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-slate-400" />
+                <Clock className="w-4 h-4 text-slate-400 dark:text-[#908fa0]" />
                 <span>الوقت المستغرق: {formatTime(timeSpentSeconds)}</span>
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1.5 text-[#3b4cb8] dark:text-indigo-400 font-medium">
+              <span className="flex items-center gap-1.5 text-[#4f46e5] dark:text-[#c0c1ff] font-medium">
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>المحاولة {attemptNumber} {settings?.maxAttempts && settings.maxAttempts > 0 ? `من ${settings.maxAttempts}` : '(مفتوحة)'}</span>
               </span>
@@ -220,11 +220,11 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
 
           {/* Big Score Circular / Number Display */}
           <div className="flex items-center gap-5">
-            <div className="text-center bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-700 rounded-2xl p-5 min-w-[135px] shadow-xs">
-              <div className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                {correctCount} <span className="text-xl sm:text-2xl text-slate-400 font-normal">/ {questions.length}</span>
+            <div className="text-center bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-2xl p-5 min-w-[135px] shadow-xs">
+              <div className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-[#dfe2f1] tracking-tight">
+                {correctCount} <span className="text-xl sm:text-2xl text-slate-400 dark:text-[#908fa0] font-normal">/ {questions.length}</span>
               </div>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1 block">
+              <span className="text-xs font-bold text-slate-500 dark:text-[#c7c4d7] mt-1 block">
                 النتيجة النهائية
               </span>
             </div>
@@ -243,38 +243,38 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
 
         {/* Detailed Metrics row */}
         <div className="grid grid-cols-3 gap-3 pt-6 text-center text-xs">
-          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
+          <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
             <span className="text-emerald-700 dark:text-emerald-400 font-black text-lg block">{correctCount}</span>
-            <span className="text-slate-500 dark:text-slate-400">إجابة صحيحة</span>
+            <span className="text-slate-500 dark:text-[#c7c4d7]">إجابة صحيحة</span>
           </div>
 
-          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-red-200 dark:border-red-800 rounded-xl p-3">
+          <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-red-200 dark:border-red-800 rounded-xl p-3">
             <span className="text-red-600 dark:text-red-400 font-black text-lg block">{wrongCount}</span>
-            <span className="text-slate-500 dark:text-slate-400">إجابة خاطئة</span>
+            <span className="text-slate-500 dark:text-[#c7c4d7]">إجابة خاطئة</span>
           </div>
 
-          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+          <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-amber-200 dark:border-amber-800 rounded-xl p-3">
             <span className="text-amber-700 dark:text-amber-400 font-black text-lg block">{unansweredCount}</span>
-            <span className="text-slate-500 dark:text-slate-400">لم يتم الإجابة عليها</span>
+            <span className="text-slate-500 dark:text-[#c7c4d7]">لم يتم الإجابة عليها</span>
           </div>
         </div>
 
         {/* Action Buttons bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-6 border-t border-slate-100 dark:border-[#262a35]">
           <div className="flex flex-wrap items-center gap-2">
             {viewingSubmission ? (
               onBackToSubmissions && (
                 <button
                   type="button"
                   onClick={onBackToSubmissions}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_12px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>العودة لنتائج المختبرين</span>
                 </button>
               )
             ) : isRetakeExhausted ? (
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-semibold">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-xs font-semibold">
                 <Lock className="w-4 h-4 text-amber-600" />
                 <span>تم استنفاد الحد الأقصى للمحاولات المسموحة ({settings?.maxAttempts} من {settings?.maxAttempts})</span>
               </div>
@@ -283,7 +283,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
                 <button
                   type="button"
                   onClick={onRetakeAll}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_12px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
                 >
                   <RotateCcw className="w-4 h-4" />
                   <span>إعادة الاختبار كاملاً</span>
@@ -293,9 +293,9 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
                   <button
                     type="button"
                     onClick={() => onRetakeIncorrectOnly(incorrectQuestions)}
-                    className="flex items-center gap-1.5 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs sm:text-sm font-bold rounded-xl border border-red-200 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 text-xs sm:text-sm font-bold rounded-xl border border-red-200 dark:border-red-800 transition-colors cursor-pointer"
                   >
-                    <XCircle className="w-4 h-4 text-red-600" />
+                    <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                     <span>إعادة الأسئلة الخاطئة ({incorrectQuestions.length})</span>
                   </button>
                 )}
@@ -306,18 +306,18 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
               <button
                 type="button"
                 onClick={onBackToReview}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 transition-colors cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer shadow-xs"
               >
-                <FileEdit className="w-4 h-4 text-slate-500" />
+                <FileEdit className="w-4 h-4 text-slate-500 dark:text-[#908fa0]" />
                 <span>تعديل الأسئلة</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={onNewExam}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 transition-colors cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] text-xs sm:text-sm font-medium rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer shadow-xs"
               >
-                <BookOpen className="w-4 h-4 text-[#3b4cb8]" />
+                <BookOpen className="w-4 h-4 text-[#4f46e5] dark:text-[#c0c1ff]" />
                 <span>العودة للاختبارات</span>
               </button>
             )}
@@ -351,24 +351,24 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
       {/* Detailed Review Section */}
       <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-[#dfe2f1] flex items-center gap-2">
             <span>مراجعة الأسئلة بالتفصيل</span>
-            <span className="text-xs font-normal text-slate-500">({questions.length} مسألة)</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-[#908fa0]">({questions.length} مسألة)</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-[#c7c4d7] mt-0.5">
             تفاصيل إجاباتك مع توضيح خطوات الحل والشرح المعتمد
           </p>
         </div>
 
         {/* Filter buttons */}
-        <div className="flex items-center gap-1.5 bg-[#f1f5f9] p-1 rounded-xl border border-slate-200 text-xs">
+        <div className="flex items-center gap-1.5 bg-[#f1f5f9] dark:bg-[#1c1f2a] p-1 rounded-xl border border-slate-200 dark:border-[#313540] text-xs">
           <button
             type="button"
             onClick={() => setFilterMode('all')}
             className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
               filterMode === 'all'
-                ? 'bg-white text-[#3b4cb8] font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-[#c7c4d7] hover:text-slate-900 dark:hover:text-[#dfe2f1]'
             }`}
           >
             الكل ({questions.length})
@@ -379,8 +379,8 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
             onClick={() => setFilterMode('wrong')}
             className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
               filterMode === 'wrong'
-                ? 'bg-white text-red-600 font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#262a35] text-red-600 dark:text-red-400 font-bold shadow-xs'
+                : 'text-slate-600 dark:text-[#c7c4d7] hover:text-slate-900 dark:hover:text-[#dfe2f1]'
             }`}
           >
             الأخطاء ({wrongCount})
@@ -391,8 +391,8 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
             onClick={() => setFilterMode('correct')}
             className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
               filterMode === 'correct'
-                ? 'bg-white text-emerald-700 font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#262a35] text-emerald-700 dark:text-emerald-400 font-bold shadow-xs'
+                : 'text-slate-600 dark:text-[#c7c4d7] hover:text-slate-900 dark:hover:text-[#dfe2f1]'
             }`}
           >
             الصحيحة ({correctCount})
@@ -404,8 +404,8 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
               onClick={() => setFilterMode('unanswered')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 filterMode === 'unanswered'
-                  ? 'bg-white text-amber-700 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#262a35] text-amber-700 dark:text-amber-400 font-bold shadow-xs'
+                  : 'text-slate-600 dark:text-[#c7c4d7] hover:text-slate-900 dark:hover:text-[#dfe2f1]'
               }`}
             >
               المتروكة ({unansweredCount})
@@ -423,7 +423,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
           return (
             <div
               key={q.id}
-              className={`bg-white dark:bg-[#151c2c] rounded-2xl border p-5 sm:p-6 shadow-stitch-card transition-all ${
+              className={`bg-white dark:bg-[#171b26] rounded-2xl border p-5 sm:p-6 shadow-stitch-card transition-all ${
                 isCorrect
                   ? 'border-emerald-200 dark:border-emerald-800'
                   : isUnanswered
@@ -445,7 +445,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
                   </span>
 
                   {q.category && (
-                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 bg-[#f8fafc] dark:bg-[#1e293b] px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
+                    <span className="text-[11px] font-semibold text-slate-600 dark:text-[#c7c4d7] bg-[#f8fafc] dark:bg-[#262a35] px-3 py-0.5 rounded-full border border-slate-200 dark:border-[#313540]">
                       {q.category}
                     </span>
                   )}
@@ -473,24 +473,24 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
               </div>
 
               {/* Question Text with Math/Formula Rendering */}
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#dfe2f1] leading-relaxed mb-4">
                 <MathFormulaRenderer text={q.question} />
               </h3>
 
               {/* Geometric Diagram or Question Image if available */}
               {q.diagramSvg && (
                 <div 
-                  className="my-3 p-3 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col items-center justify-center overflow-hidden"
+                  className="my-3 p-3 bg-[#f8fafc] dark:bg-[#1c1f2a] rounded-xl border border-slate-200 dark:border-[#313540] shadow-xs flex flex-col items-center justify-center overflow-hidden"
                   dangerouslySetInnerHTML={{ __html: q.diagramSvg }}
                 />
               )}
 
               {q.imageUrl && (
-                <div className="my-3 p-2 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-800 flex justify-center">
+                <div className="my-3 p-2 bg-[#f8fafc] dark:bg-[#1c1f2a] rounded-xl border border-slate-200 dark:border-[#313540] flex justify-center">
                   <img 
                     src={q.imageUrl} 
                     alt="رسمة السؤال التوضيحية" 
-                    className="max-h-56 rounded-lg object-contain shadow-xs bg-white dark:bg-[#151c2c]"
+                    className="max-h-56 rounded-lg object-contain shadow-xs bg-white dark:bg-[#171b26]"
                   />
                 </div>
               )}
@@ -502,7 +502,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
                   const isThisCorrect = q.answer === optIdx;
                   const isThisStudentChoice = studentAns === optIdx;
 
-                  let borderClass = 'border-slate-200 dark:border-slate-700 bg-[#f8fafc] dark:bg-[#1a2236] text-slate-700 dark:text-slate-300';
+                  let borderClass = 'border-slate-200 dark:border-[#313540] bg-[#f8fafc] dark:bg-[#1c1f2a] text-slate-700 dark:text-[#dfe2f1]';
                   let badge = null;
 
                   if (isThisCorrect) {
@@ -527,7 +527,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
                       className={`p-3 rounded-xl border flex items-center justify-between gap-3 text-xs sm:text-sm ${borderClass}`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                        <span className="w-6 h-6 rounded-md bg-white dark:bg-[#262a35] border border-slate-200 dark:border-[#313540] text-slate-700 dark:text-[#c7c4d7] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                           {label}
                         </span>
                         <span>
@@ -542,12 +542,12 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
 
               {/* Scratchpad note display if student wrote any */}
               {scratchpadNote && scratchpadNote.trim().length > 0 && (
-                <div className="mb-4 bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-700 dark:text-slate-300">
-                  <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 mb-1 font-semibold">
-                    <Edit3 className="w-3.5 h-3.5 text-[#3b4cb8] dark:text-indigo-400" />
+                <div className="mb-4 bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-3 text-xs text-slate-700 dark:text-[#dfe2f1]">
+                  <div className="flex items-center gap-1.5 text-slate-500 dark:text-[#c7c4d7] mb-1 font-semibold">
+                    <Edit3 className="w-3.5 h-3.5 text-[#4f46e5] dark:text-[#c0c1ff]" />
                     <span>مسودتك وملاحظاتك أثناء حل هذا السؤال:</span>
                   </div>
-                  <p className="font-mono text-slate-800 dark:text-slate-200 whitespace-pre-line bg-white dark:bg-[#151c2c] p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <p className="font-mono text-slate-800 dark:text-[#dfe2f1] whitespace-pre-line bg-white dark:bg-[#171b26] p-2.5 rounded-lg border border-slate-200 dark:border-[#313540]">
                     {scratchpadNote}
                   </p>
                 </div>
@@ -560,12 +560,12 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
                     <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <span>طريقة الحل والتوضيح المعتمدة:</span>
                   </div>
-                  <div className="whitespace-pre-line leading-relaxed text-slate-800 dark:text-slate-200 bg-white dark:bg-[#151c2c] p-3 rounded-lg border border-amber-200 dark:border-amber-900/50 font-sans">
+                  <div className="whitespace-pre-line leading-relaxed text-slate-800 dark:text-[#dfe2f1] bg-white dark:bg-[#171b26] p-3 rounded-lg border border-amber-200 dark:border-amber-900/50 font-sans">
                     <MathFormulaRenderer text={q.hint} />
                   </div>
                 </div>
               ) : (
-                <div className="text-[11px] text-slate-400 dark:text-slate-500 italic mt-2">
+                <div className="text-[11px] text-slate-400 dark:text-[#908fa0] italic mt-2">
                   (لا توجد طريقة حل مضافة لهذا السؤال في لوحة المراجعة)
                 </div>
               )}
@@ -576,13 +576,13 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
       </div>
 
       {/* Bottom Floating Bar */}
-      <div className="flex flex-wrap items-center justify-center gap-3 py-6 border-t border-slate-800">
+      <div className="flex flex-wrap items-center justify-center gap-3 py-6 border-t border-slate-200 dark:border-[#262a35]">
         {viewingSubmission ? (
           onBackToSubmissions && (
             <button
               type="button"
               onClick={onBackToSubmissions}
-              className="px-6 py-3 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-sm font-black rounded-xl shadow-lg shadow-indigo-600/25 transition-all cursor-pointer flex items-center gap-2"
+              className="px-6 py-3 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm font-black rounded-xl shadow-[0_0_14px_rgba(192,193,255,0.25)] transition-all cursor-pointer flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>العودة لنتائج المختبرين</span>
@@ -602,7 +602,7 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
         <button
           type="button"
           onClick={onNewExam}
-          className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold rounded-xl border border-slate-700 transition-colors cursor-pointer flex items-center gap-2"
+          className="px-6 py-3 bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] text-sm font-bold rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer flex items-center gap-2"
         >
           <span>{viewingSubmission ? 'العودة للاختبارات المنشورة' : 'اختبار جديد / رفع ملف آخر'}</span>
         </button>
@@ -611,3 +611,4 @@ export const ResultsStage: React.FC<ResultsStageProps> = ({
     </div>
   );
 };
+

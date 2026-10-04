@@ -231,20 +231,20 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
     <div className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
       
       {/* Top Banner / Controls */}
-      <div className="bg-white border border-[#e2e8f0] rounded-2xl p-5 sm:p-6 mb-6 shadow-stitch-card">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-5 sm:p-6 mb-6 shadow-stitch-card">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-[#262a35]">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <button
                 type="button"
                 onClick={onBackToUpload}
-                className="text-xs text-slate-500 hover:text-[#3b4cb8] flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-xs text-slate-500 dark:text-[#c7c4d7] hover:text-[#3b4cb8] dark:hover:text-[#c0c1ff] flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <ArrowRight className="w-3.5 h-3.5" />
                 <span>رفع ملف آخر</span>
               </button>
               {fallbackTriggered && (
-                <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
                   مراجعة يدوية
                 </span>
               )}
@@ -254,44 +254,24 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
               type="text"
               value={examTitle}
               onChange={(e) => onUpdateTitle(e.target.value)}
-              className="text-lg sm:text-xl font-bold text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-[#3b4cb8] focus:outline-none transition-colors px-0.5 py-0.5 max-w-md"
+              className="text-lg sm:text-xl font-bold text-slate-900 dark:text-[#dfe2f1] bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-[#3b4cb8] dark:focus:border-[#c0c1ff] focus:outline-none transition-colors px-0.5 py-0.5 max-w-md"
               placeholder="عنوان الاختبار..."
             />
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-[#c7c4d7] mt-1">
               مراجعة الأسئلة وتحديد الإجابات الصحيحة والرسومات التوضيحية
             </p>
           </div>
 
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            {rawText && (
-              <button
-                type="button"
-                onClick={() => setShowRawTextModal(true)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-[#e2e8f0] transition-colors cursor-pointer shadow-sm"
-              >
-                <FileText className="w-3.5 h-3.5 text-slate-500" />
-                <span>النص المستخرج</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowPdfModal(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-[#e2e8f0] transition-colors cursor-pointer shadow-sm"
-            >
-              <FileDown className="w-3.5 h-3.5 text-[#3b4cb8]" />
-              <span>تصدير PDF</span>
-            </button>
-
             {/* Preview Exam Button */}
             <button
               type="button"
               onClick={handlePreviewQuiz}
-              className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#3b4cb8] text-xs sm:text-sm font-bold rounded-xl border border-indigo-200 transition-all cursor-pointer shadow-xs"
+              className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-[#8083ff]/15 dark:hover:bg-[#8083ff]/25 text-[#3b4cb8] dark:text-[#c0c1ff] text-xs sm:text-sm font-bold rounded-xl border border-indigo-200 dark:border-[#8083ff]/30 transition-all cursor-pointer shadow-xs"
               title="معاينة الاختبار كما يراه الطالب قبل نشره"
             >
-              <Eye className="w-4 h-4 text-[#3b4cb8]" />
+              <Eye className="w-4 h-4 text-[#3b4cb8] dark:text-[#c0c1ff]" />
               <span>معاينة الاختبار</span>
             </button>
 
@@ -299,7 +279,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
             <button
               type="button"
               onClick={handlePublish}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_14px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
               title="نشر الاختبار وحفظه في قسم اختباراتي"
             >
               <Sparkles className="w-4 h-4" />
@@ -310,17 +290,17 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
         </div>
 
         {/* Minimal Stats Row */}
-        <div className="flex items-center justify-between pt-3 text-xs text-slate-500">
+        <div className="flex items-center justify-between pt-3 text-xs text-slate-500 dark:text-[#c7c4d7]">
           <div className="flex items-center gap-3">
-            <span>إجمالي المسائل: <strong className="text-slate-900 font-bold">{questions.length}</strong></span>
+            <span>إجمالي المسائل: <strong className="text-slate-900 dark:text-[#dfe2f1] font-bold">{questions.length}</strong></span>
             <span>•</span>
-            <span>مع خطوات الحل: <strong className="text-emerald-700 font-bold">{hintCount}</strong></span>
+            <span>مع خطوات الحل: <strong className="text-emerald-700 dark:text-[#4edea3] font-bold">{hintCount}</strong></span>
           </div>
 
           <button
             type="button"
             onClick={handleAddQuestion}
-            className="text-xs font-semibold text-[#3b4cb8] hover:text-[#312e81] flex items-center gap-1 cursor-pointer bg-[#eef2ff] px-3 py-1.5 rounded-lg border border-[#c7d2fe]"
+            className="text-xs font-semibold text-[#3b4cb8] dark:text-[#c0c1ff] hover:text-[#312e81] dark:hover:text-white flex items-center gap-1 cursor-pointer bg-[#eef2ff] dark:bg-[#1c1f2a] px-3 py-1.5 rounded-lg border border-[#c7d2fe] dark:border-[#313540] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>إضافة سؤال جديد</span>
@@ -353,22 +333,22 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
       )}
 
       {/* Quiz Settings Card (Duration, Availability Dates, Max Attempts) */}
-      <div className="bg-white border border-[#e2e8f0] rounded-2xl p-5 sm:p-6 mb-6 shadow-stitch-card">
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+      <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-5 sm:p-6 mb-6 shadow-stitch-card">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-[#262a35]">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#eef2ff] text-[#3b4cb8] border border-[#c7d2fe] flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-xl bg-[#eef2ff] dark:bg-[#1c1f2a] text-[#3b4cb8] dark:text-[#c0c1ff] border border-[#c7d2fe] dark:border-[#313540] flex items-center justify-center font-bold">
               <Sliders className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-900">إعدادات وقواعد الاختبار</h3>
-              <p className="text-xs text-slate-500">حدد مدة الاختبار وتاريخ الإتاحة وعدد محاولات الإعادة</p>
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-[#dfe2f1]">إعدادات وقواعد الاختبار</h3>
+              <p className="text-xs text-slate-500 dark:text-[#c7c4d7]">حدد مدة الاختبار وتاريخ الإتاحة وعدد محاولات الإعادة</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => setShowSettingsCard(!showSettingsCard)}
-            className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+            className="text-xs text-slate-600 dark:text-[#dfe2f1] hover:text-slate-900 dark:hover:text-white flex items-center gap-1 bg-slate-50 dark:bg-[#1c1f2a] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer"
           >
             <span>{showSettingsCard ? 'طي الإعدادات' : 'تعديل الإعدادات'}</span>
             {showSettingsCard ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -378,13 +358,13 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
         {showSettingsCard ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
             {/* 1. Time Limit / Duration */}
-            <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 flex flex-col justify-between">
+            <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-4 flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 mb-2 font-bold text-slate-900">
-                  <Clock className="w-4 h-4 text-[#3b4cb8]" />
+                <div className="flex items-center gap-2 mb-2 font-bold text-slate-900 dark:text-[#dfe2f1]">
+                  <Clock className="w-4 h-4 text-[#3b4cb8] dark:text-[#c0c1ff]" />
                   <span>مدة الاختبار (الوقت):</span>
                 </div>
-                <p className="text-slate-500 mb-3 text-[11px] leading-relaxed">
+                <p className="text-slate-500 dark:text-[#c7c4d7] mb-3 text-[11px] leading-relaxed">
                   يظهر عداد تنازلي للطالب أثناء الحل وينهي الاختبار عند انتهاء الوقت.
                 </p>
 
@@ -397,8 +377,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                       onClick={() => setDurationMinutes(mins)}
                       className={`py-1.5 px-2 rounded-lg font-bold transition-all cursor-pointer text-center text-xs ${
                         durationMinutes === mins
-                          ? 'bg-[#3b4cb8] text-white shadow-sm'
-                          : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
+                          ? 'bg-[#4f46e5] text-white shadow-sm'
+                          : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540]'
                       }`}
                     >
                       {mins} دقيقة
@@ -409,8 +389,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                     onClick={() => setDurationMinutes(0)}
                     className={`py-1.5 px-2 rounded-lg font-bold transition-all cursor-pointer text-center text-xs col-span-2 ${
                       durationMinutes === 0
-                        ? 'bg-[#3b4cb8] text-white shadow-sm'
-                        : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
+                        ? 'bg-[#4f46e5] text-white shadow-sm'
+                        : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540]'
                     }`}
                   >
                     بدون توقيت (مفتوح)
@@ -418,8 +398,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                 </div>
 
                 {/* Custom Minutes Input */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
-                  <span className="text-slate-500 text-[11px]">أو وقت مخصص:</span>
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-[#313540]">
+                  <span className="text-slate-500 dark:text-[#c7c4d7] text-[11px]">أو وقت مخصص:</span>
                   <input
                     type="number"
                     min="1"
@@ -430,47 +410,47 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                       setDurationMinutes(isNaN(val) ? 0 : Math.max(1, val));
                     }}
                     placeholder="دقائق..."
-                    className="w-20 bg-white border border-slate-300 rounded-lg px-2 py-1 text-slate-900 font-mono text-center focus:border-[#3b4cb8] focus:outline-none"
+                    className="w-20 bg-white dark:bg-[#262a35] border border-slate-300 dark:border-[#313540] rounded-lg px-2 py-1 text-slate-900 dark:text-[#dfe2f1] font-mono text-center focus:border-[#3b4cb8] dark:focus:border-[#c0c1ff] focus:outline-none"
                   />
-                  <span className="text-slate-500 text-[11px]">دقيقة</span>
+                  <span className="text-slate-500 dark:text-[#c7c4d7] text-[11px]">دقيقة</span>
                 </div>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-[#313540] flex items-center justify-between text-[11px] text-slate-500 dark:text-[#c7c4d7]">
                 <span>الحالة:</span>
-                <span className="font-bold text-[#3b4cb8]">
+                <span className="font-bold text-[#3b4cb8] dark:text-[#c0c1ff]">
                   {durationMinutes === 0 ? 'مفتوح بدون حد زمني' : `${durationMinutes} دقيقة`}
                 </span>
               </div>
             </div>
 
             {/* 2. Availability Dates */}
-            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+            <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-4 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 font-bold text-white">
-                    <Calendar className="w-4 h-4 text-teal-400" />
+                  <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-[#dfe2f1]">
+                    <Calendar className="w-4 h-4 text-[#3b4cb8] dark:text-[#c0c1ff]" />
                     <span>فترة إتاحة الاختبار:</span>
                   </div>
-                  <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-300">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600 dark:text-[#dfe2f1]">
                     <input
                       type="checkbox"
                       checked={enableDateRange}
                       onChange={(e) => setEnableDateRange(e.target.checked)}
-                      className="rounded accent-emerald-500 cursor-pointer"
+                      className="rounded accent-[#3b4cb8] cursor-pointer"
                     />
                     <span>تحديد موعد</span>
                   </label>
                 </div>
-                <p className="text-slate-400 mb-3 text-[11px] leading-relaxed">
+                <p className="text-slate-500 dark:text-[#c7c4d7] mb-3 text-[11px] leading-relaxed">
                   تحديد تاريخ ووقت بداية ونهاية السماح للطلاب بالدخول للاختبار.
                 </p>
 
                 {enableDateRange ? (
                   <div className="space-y-2">
                     {/* Quick Date Presets */}
-                    <div className="flex flex-wrap items-center gap-1 pb-1 border-b border-slate-800/80">
-                      <span className="text-[10px] text-slate-400">تحديد سريع:</span>
+                    <div className="flex flex-wrap items-center gap-1 pb-1 border-b border-slate-200 dark:border-[#313540]">
+                      <span className="text-[10px] text-slate-500 dark:text-[#c7c4d7]">تحديد سريع:</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -480,7 +460,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                           setStartDate(toDateTimeLocal(now));
                           setEndDate(toDateTimeLocal(end));
                         }}
-                        className="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-teal-300 border border-slate-700 transition-colors cursor-pointer"
+                        className="px-2 py-0.5 rounded bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-[10px] text-[#3b4cb8] dark:text-[#c0c1ff] border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer font-medium"
                       >
                         اليوم فقط
                       </button>
@@ -492,7 +472,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                           setStartDate(toDateTimeLocal(now));
                           setEndDate(toDateTimeLocal(end));
                         }}
-                        className="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-teal-300 border border-slate-700 transition-colors cursor-pointer"
+                        className="px-2 py-0.5 rounded bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-[10px] text-[#3b4cb8] dark:text-[#c0c1ff] border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer font-medium"
                       >
                         3 أيام
                       </button>
@@ -504,54 +484,54 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                           setStartDate(toDateTimeLocal(now));
                           setEndDate(toDateTimeLocal(end));
                         }}
-                        className="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-teal-300 border border-slate-700 transition-colors cursor-pointer"
+                        className="px-2 py-0.5 rounded bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-[10px] text-[#3b4cb8] dark:text-[#c0c1ff] border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer font-medium"
                       >
                         أسبوع كامل
                       </button>
                     </div>
 
                     <div>
-                      <label className="block text-slate-400 text-[10px] mb-1">تاريخ ووقت البدء (متاح من):</label>
+                      <label className="block text-slate-600 dark:text-[#c7c4d7] text-[10px] mb-1">تاريخ ووقت البدء (متاح من):</label>
                       <input
                         type="datetime-local"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 text-xs focus:border-teal-500 focus:outline-none"
+                        className="w-full bg-white dark:bg-[#262a35] border border-slate-300 dark:border-[#313540] rounded-lg px-2.5 py-1 text-slate-900 dark:text-[#dfe2f1] text-xs focus:border-[#3b4cb8] dark:focus:border-[#c0c1ff] focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-400 text-[10px] mb-1">تاريخ ووقت الانتهاء (متاح حتى):</label>
+                      <label className="block text-slate-600 dark:text-[#c7c4d7] text-[10px] mb-1">تاريخ ووقت الانتهاء (متاح حتى):</label>
                       <input
                         type="datetime-local"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 text-xs focus:border-teal-500 focus:outline-none"
+                        className="w-full bg-white dark:bg-[#262a35] border border-slate-300 dark:border-[#313540] rounded-lg px-2.5 py-1 text-slate-900 dark:text-[#dfe2f1] text-xs focus:border-[#3b4cb8] dark:focus:border-[#c0c1ff] focus:outline-none"
                       />
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-800/80 text-center text-slate-400 text-[11px]">
+                  <div className="p-3 bg-white dark:bg-[#262a35] rounded-lg border border-slate-200 dark:border-[#313540] text-center text-slate-500 dark:text-[#c7c4d7] text-[11px]">
                     الاختبار متاح دائماً بدون قيود زمنية للتاريخ.
                   </div>
                 )}
               </div>
 
-              <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-[#313540] flex items-center justify-between text-[11px] text-slate-500 dark:text-[#c7c4d7]">
                 <span>الحالة:</span>
-                <span className={`font-bold ${enableDateRange ? 'text-teal-400' : 'text-slate-400'}`}>
+                <span className={`font-bold ${enableDateRange ? 'text-[#3b4cb8] dark:text-[#c0c1ff]' : 'text-slate-500 dark:text-[#908fa0]'}`}>
                   {enableDateRange ? 'محدد بفترة زمنية' : 'متاح دائماً'}
                 </span>
               </div>
             </div>
 
             {/* 3. Retake Attempts */}
-            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+            <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-4 flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 mb-2 font-bold text-white">
-                  <RotateCcw className="w-4 h-4 text-cyan-400" />
+                <div className="flex items-center gap-2 mb-2 font-bold text-slate-900 dark:text-[#dfe2f1]">
+                  <RotateCcw className="w-4 h-4 text-[#3b4cb8] dark:text-[#c0c1ff]" />
                   <span>عدد محاولات الإعادة:</span>
                 </div>
-                <p className="text-slate-400 mb-3 text-[11px] leading-relaxed">
+                <p className="text-slate-500 dark:text-[#c7c4d7] mb-3 text-[11px] leading-relaxed">
                   كم مرة يستطيع الطالب إعادة خوض هذا الاختبار وتحسين درجته.
                 </p>
 
@@ -564,8 +544,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                       onClick={() => setMaxAttempts(num)}
                       className={`py-1.5 px-2 rounded-lg font-bold transition-all cursor-pointer text-center text-xs ${
                         maxAttempts === num
-                          ? 'bg-cyan-500 text-slate-950 shadow'
-                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                          ? 'bg-[#4f46e5] text-white shadow-sm'
+                          : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540]'
                       }`}
                     >
                       {num === 1 ? 'مرة واحدة' : num === 2 ? 'مرتان' : '3 مرات'}
@@ -576,8 +556,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                     onClick={() => setMaxAttempts(0)}
                     className={`py-1.5 px-2 rounded-lg font-bold transition-all cursor-pointer text-center text-xs col-span-3 ${
                       maxAttempts === 0
-                        ? 'bg-cyan-500 text-slate-950 shadow'
-                        : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                        ? 'bg-[#4f46e5] text-white shadow-sm'
+                        : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540]'
                     }`}
                   >
                     غير محدود (إعادة مفتوحة)
@@ -585,8 +565,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                 </div>
 
                 {/* Custom attempts input */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-800/80">
-                  <span className="text-slate-400 text-[11px]">أو عدد محدد:</span>
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-[#313540]">
+                  <span className="text-slate-500 dark:text-[#c7c4d7] text-[11px]">أو عدد محدد:</span>
                   <input
                     type="number"
                     min="1"
@@ -597,15 +577,15 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                       setMaxAttempts(isNaN(val) ? 0 : Math.max(1, val));
                     }}
                     placeholder="عدد..."
-                    className="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white font-mono text-center focus:border-cyan-500 focus:outline-none"
+                    className="w-16 bg-white dark:bg-[#262a35] border border-slate-300 dark:border-[#313540] rounded-lg px-2 py-1 text-slate-900 dark:text-[#dfe2f1] font-mono text-center focus:border-[#3b4cb8] dark:focus:border-[#c0c1ff] focus:outline-none"
                   />
-                  <span className="text-slate-400 text-[11px]">محاولات</span>
+                  <span className="text-slate-500 dark:text-[#c7c4d7] text-[11px]">محاولات</span>
                 </div>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-[#313540] flex items-center justify-between text-[11px] text-slate-500 dark:text-[#c7c4d7]">
                 <span>المحاولات:</span>
-                <span className="font-bold text-cyan-400">
+                <span className="font-bold text-[#3b4cb8] dark:text-[#c0c1ff]">
                   {maxAttempts === 0 ? 'غير محدود' : `${maxAttempts} محاولة`}
                 </span>
               </div>
@@ -613,20 +593,20 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
           </div>
         ) : (
           /* Collapsed Summary Badge */
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-700 dark:text-[#c7c4d7] bg-slate-50 dark:bg-[#1c1f2a] p-3 rounded-xl border border-slate-200 dark:border-[#313540]">
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>المدة: <strong className="text-white">{durationMinutes === 0 ? 'مفتوح' : `${durationMinutes} دقيقة`}</strong></span>
+              <Clock className="w-3.5 h-3.5 text-emerald-500 dark:text-[#4edea3]" />
+              <span>المدة: <strong className="text-slate-900 dark:text-[#dfe2f1]">{durationMinutes === 0 ? 'مفتوح' : `${durationMinutes} دقيقة`}</strong></span>
             </div>
-            <span className="text-slate-700">•</span>
+            <span className="text-slate-300 dark:text-[#313540]">•</span>
             <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-teal-400" />
-              <span>التاريخ: <strong className="text-white">{enableDateRange ? 'محدد بفترة' : 'متاح دائماً'}</strong></span>
+              <Calendar className="w-3.5 h-3.5 text-teal-500 dark:text-teal-400" />
+              <span>التاريخ: <strong className="text-slate-900 dark:text-[#dfe2f1]">{enableDateRange ? 'محدد بفترة' : 'متاح دائماً'}</strong></span>
             </div>
-            <span className="text-slate-700">•</span>
+            <span className="text-slate-300 dark:text-[#313540]">•</span>
             <div className="flex items-center gap-1.5">
-              <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-              <span>المحاولات: <strong className="text-white">{maxAttempts === 0 ? 'غير محدود' : `${maxAttempts} محاولة`}</strong></span>
+              <RotateCcw className="w-3.5 h-3.5 text-indigo-500 dark:text-[#c0c1ff]" />
+              <span>المحاولات: <strong className="text-slate-900 dark:text-[#dfe2f1]">{maxAttempts === 0 ? 'غير محدود' : `${maxAttempts} محاولة`}</strong></span>
             </div>
           </div>
         )}
@@ -637,23 +617,23 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
         {questions.map((q, qIndex) => (
           <div
             key={q.id}
-            className="bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-stitch-card hover:border-[#3b4cb8]/40 dark:hover:border-indigo-500/40 transition-all"
+            className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-5 sm:p-6 shadow-stitch-card hover:border-[#3b4cb8]/40 dark:hover:border-[#c0c1ff]/40 transition-all"
           >
             {/* Question Header */}
             <div className="flex items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-xl bg-[#eef2ff] dark:bg-indigo-950 text-[#3b4cb8] dark:text-indigo-400 border border-[#c7d2fe] dark:border-indigo-800 flex items-center justify-center font-black text-sm">
+                <span className="w-8 h-8 rounded-xl bg-[#eef2ff] dark:bg-[#8083ff]/15 text-[#3b4cb8] dark:text-[#c0c1ff] border border-[#c7d2fe] dark:border-[#8083ff]/30 flex items-center justify-center font-black text-sm">
                   {qIndex + 1}
                 </span>
                 
                 {/* Category selector / tag */}
-                <div className="flex items-center gap-1.5 bg-[#f8fafc] dark:bg-[#1e293b] px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
-                  <Tag className="w-3 h-3 text-slate-400" />
+                <div className="flex items-center gap-1.5 bg-[#f8fafc] dark:bg-[#1c1f2a] px-3 py-1 rounded-full border border-slate-200 dark:border-[#313540]">
+                  <Tag className="w-3 h-3 text-slate-400 dark:text-[#908fa0]" />
                   <input
                     type="text"
                     value={q.category || 'عام'}
                     onChange={(e) => handleCategoryChange(q.id, e.target.value)}
-                    className="bg-transparent text-xs text-slate-700 dark:text-slate-200 w-24 sm:w-28 focus:outline-none font-medium"
+                    className="bg-transparent text-xs text-slate-700 dark:text-[#dfe2f1] w-24 sm:w-28 focus:outline-none font-medium"
                     placeholder="التصنيف..."
                   />
                 </div>
@@ -664,7 +644,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                 <button
                   type="button"
                   onClick={() => handleDuplicateQuestion(q)}
-                  className="p-1.5 text-slate-400 hover:text-[#3b4cb8] hover:bg-[#eef2ff] rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 dark:text-[#908fa0] hover:text-[#3b4cb8] dark:hover:text-[#c0c1ff] hover:bg-[#eef2ff] dark:hover:bg-[#262a35] rounded-lg transition-colors cursor-pointer"
                   title="تكرار هذا السؤال"
                 >
                   <Copy className="w-4 h-4" />
@@ -672,7 +652,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                 <button
                   type="button"
                   onClick={() => handleDeleteQuestion(q.id)}
-                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 dark:text-[#908fa0] hover:text-red-600 dark:hover:text-[#ffb4ab] hover:bg-red-50 dark:hover:bg-[#93000a]/30 rounded-lg transition-colors cursor-pointer"
                   title="حذف هذا السؤال"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -683,7 +663,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
             {/* Question Textarea */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
-                <label className="text-xs font-semibold text-slate-700">
+                <label className="text-xs font-semibold text-slate-700 dark:text-[#dfe2f1]">
                   نص السؤال / المسألة:
                 </label>
                 
@@ -697,7 +677,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                       questionId: q.id,
                       questionIndex: qIndex + 1
                     })}
-                    className="flex items-center gap-1.5 text-[11px] text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1 rounded-full cursor-pointer transition-colors font-medium shadow-xs"
+                    className="flex items-center gap-1.5 text-[11px] text-amber-800 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200 dark:border-amber-800/60 px-3 py-1 rounded-full cursor-pointer transition-colors font-medium shadow-xs"
                     title="قص وتحديد أي رسمة من ورقة الاختبار المرفوعة ولصقها هنا مباشرة"
                   >
                     <Scissors className="w-3.5 h-3.5 text-amber-600" />
@@ -705,7 +685,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                   </button>
 
                   {/* Standard Image File Upload */}
-                  <label className="flex items-center gap-1.5 text-[11px] text-[#3b4cb8] hover:text-[#312e81] bg-[#eef2ff] hover:bg-[#e0e7ff] border border-[#c7d2fe] px-3 py-1 rounded-full cursor-pointer transition-colors font-medium">
+                  <label className="flex items-center gap-1.5 text-[11px] text-[#3b4cb8] dark:text-[#c0c1ff] hover:text-[#312e81] bg-[#eef2ff] dark:bg-[#1c1f2a] hover:bg-[#e0e7ff] dark:hover:bg-[#262a35] border border-[#c7d2fe] dark:border-[#313540] px-3 py-1 rounded-full cursor-pointer transition-colors font-medium">
                     <ImageIcon className="w-3.5 h-3.5" />
                     <span>{q.imageUrl || q.diagramSvg ? 'تغيير الصورة' : 'رفع صورة من الجهاز'}</span>
                     <input
@@ -722,18 +702,18 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                 rows={2}
                 value={q.question}
                 onChange={(e) => handleQuestionTextChange(q.id, e.target.value)}
-                className="w-full bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#3b4cb8] focus:bg-white dark:focus:bg-[#151c2c] transition-colors leading-relaxed"
+                className="w-full bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-3 text-sm text-slate-900 dark:text-[#dfe2f1] placeholder-slate-400 dark:placeholder-[#908fa0] focus:outline-none focus:border-[#3b4cb8] dark:focus:border-[#c0c1ff] focus:bg-white dark:focus:bg-[#171b26] transition-colors leading-relaxed"
                 placeholder="اكتب أو الصق نص السؤال هنا..."
               />
 
               {/* Live Formula & Equation Preview */}
               {q.question && q.question.trim().length > 0 && (
-                <div className="mt-2.5 p-3 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-xl">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 mb-1.5">
+                <div className="mt-2.5 p-3 bg-indigo-50/70 dark:bg-[#8083ff]/10 border border-indigo-100 dark:border-[#8083ff]/20 rounded-xl">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 dark:text-[#c0c1ff] mb-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
                     <span>معاينة تنسيق السؤال والكسور والرموز التفاعلية (كيف سيظهر للطالب):</span>
                   </div>
-                  <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed">
+                  <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-[#dfe2f1] leading-relaxed">
                     <MathFormulaRenderer text={q.question} />
                   </div>
                 </div>
@@ -742,10 +722,10 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
 
             {/* Display Diagram SVG or Attached Image in Review */}
             {(q.diagramSvg || q.imageUrl) && (
-              <div className="mb-4 p-3.5 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-700 relative group">
-                <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">
-                  <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Eye className="w-3 h-3 text-[#3b4cb8]" />
+              <div className="mb-4 p-3.5 bg-[#f8fafc] dark:bg-[#1c1f2a] rounded-xl border border-slate-200 dark:border-[#313540] relative group">
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-200 dark:border-[#313540]">
+                  <span className="text-[11px] font-bold text-slate-700 dark:text-[#dfe2f1] flex items-center gap-1.5">
+                    <Eye className="w-3 h-3 text-[#3b4cb8] dark:text-[#c0c1ff]" />
                     <span>رسمة السؤال التوضيحية (هندسية/صورة مقصوصة):</span>
                   </span>
                   
@@ -775,7 +755,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
 
                 {q.diagramSvg && (
                   <div 
-                    className="flex justify-center my-2 overflow-hidden bg-white dark:bg-[#151c2c] p-2 rounded-lg border border-slate-200 dark:border-slate-700"
+                    className="flex justify-center my-2 overflow-hidden bg-white dark:bg-[#171b26] p-2 rounded-lg border border-slate-200 dark:border-[#313540]"
                     dangerouslySetInnerHTML={{ __html: q.diagramSvg }}
                   />
                 )}
@@ -785,7 +765,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                     <img
                       src={q.imageUrl}
                       alt="رسمة السؤال"
-                      className="max-h-56 rounded-lg object-contain border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-[#151c2c]"
+                      className="max-h-56 rounded-lg object-contain border border-slate-200 dark:border-[#313540] shadow-sm bg-white dark:bg-[#171b26]"
                     />
                   </div>
                 )}
@@ -795,10 +775,10 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
             {/* 4 Options Grid */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-slate-700 dark:text-[#dfe2f1]">
                   الخيارات الأربعة (حدد الإجابة الصحيحة بالضغط على الرمز أو الدائرة):
                 </label>
-                <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                <span className="text-[11px] text-emerald-700 dark:text-[#4edea3] font-semibold bg-emerald-50 dark:bg-[#4edea3]/10 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-[#4edea3]/30">
                   الإجابة الصحيحة: ({OPTION_LABELS[q.answer]})
                 </span>
               </div>
@@ -813,8 +793,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                       key={optIdx}
                       className={`flex items-center gap-2 p-2 rounded-xl border transition-all ${
                         isCorrect
-                          ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-700 ring-2 ring-emerald-500/10'
-                          : 'bg-[#f8fafc] dark:bg-[#1a2236] border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                          ? 'bg-emerald-50/80 dark:bg-[#4edea3]/10 border-emerald-400 dark:border-[#4edea3]/40 ring-2 ring-emerald-500/10'
+                          : 'bg-[#f8fafc] dark:bg-[#1c1f2a] border-slate-200 dark:border-[#313540] hover:border-slate-300 dark:hover:border-[#464554]'
                       }`}
                     >
                       {/* Radio button to choose correct answer */}
@@ -824,7 +804,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                         className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs transition-colors cursor-pointer shrink-0 ${
                           isCorrect
                             ? 'bg-emerald-600 text-white shadow-sm'
-                            : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 border border-slate-200 dark:border-slate-700'
+                            : 'bg-white dark:bg-[#262a35] text-slate-500 dark:text-[#dfe2f1] hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#313540] border border-slate-200 dark:border-[#313540]'
                         }`}
                         title={isCorrect ? 'الإجابة الصحيحة' : 'اضغط لتعيينها كإجابة صحيحة'}
                       >
@@ -836,19 +816,19 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                         type="text"
                         value={optText}
                         onChange={(e) => handleOptionChange(q.id, optIdx, e.target.value)}
-                        className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-500 px-1 font-medium"
+                        className="w-full bg-transparent text-sm text-slate-800 dark:text-[#dfe2f1] focus:outline-none placeholder-slate-400 dark:placeholder-[#908fa0] px-1 font-medium"
                         placeholder={`نص الخيار (${label})`}
                       />
 
                       {/* Live Formula Preview Badge if option contains math */}
                       {(optText.includes('/') || optText.includes('^') || optText.includes('√')) && (
-                        <span className="shrink-0 px-2 py-0.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xs font-bold text-[#3b4cb8] dark:text-indigo-400">
+                        <span className="shrink-0 px-2 py-0.5 text-xs bg-white dark:bg-[#262a35] border border-slate-200 dark:border-[#313540] rounded-lg shadow-2xs font-bold text-[#3b4cb8] dark:text-[#c0c1ff]">
                           <MathFormulaRenderer text={optText} />
                         </span>
                       )}
 
                       {isCorrect && (
-                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 ml-1" />
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-[#4edea3] shrink-0 ml-1" />
                       )}
                     </div>
                   );
@@ -872,7 +852,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                 value={q.hint || ''}
                 onChange={(e) => handleHintChange(q.id, e.target.value)}
                 placeholder="اكتب خطوات أو فكرة الحل هنا... ستظهر للطالب عند النقر على تلميح أو في صفحة النتائج لتوضيح الخطأ."
-                className="w-full bg-white dark:bg-[#1a2236] border border-amber-200 dark:border-amber-900/60 rounded-lg p-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-amber-900/40 dark:placeholder-amber-400/40 focus:outline-none focus:border-amber-400 leading-relaxed font-sans"
+                className="w-full bg-white dark:bg-[#1c1f2a] border border-amber-200 dark:border-amber-900/60 rounded-lg p-2.5 text-xs sm:text-sm text-slate-800 dark:text-[#dfe2f1] placeholder-amber-900/40 dark:placeholder-amber-400/40 focus:outline-none focus:border-amber-400 leading-relaxed font-sans"
               />
               {q.hint && q.hint.trim().length > 0 && (
                 <div className="mt-2 p-2 bg-amber-100/60 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/40 rounded-lg text-xs text-amber-950 dark:text-amber-200">
@@ -888,21 +868,21 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
       </div>
 
       {/* Bottom Floating Bar */}
-      <div className="sticky bottom-4 z-40 bg-white/95 dark:bg-[#151c2c]/95 backdrop-blur-md border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-4 shadow-stitch-float flex flex-wrap items-center justify-between gap-3">
+      <div className="sticky bottom-4 z-40 bg-white/95 dark:bg-[#171b26]/95 backdrop-blur-md border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-4 shadow-stitch-float flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleAddQuestion}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#f8fafc] dark:bg-[#1c1f2a] hover:bg-slate-100 dark:hover:bg-[#262a35] text-slate-800 dark:text-[#dfe2f1] text-xs sm:text-sm font-bold rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-[#3b4cb8] dark:text-indigo-400" />
+            <Plus className="w-4 h-4 text-[#3b4cb8] dark:text-[#c0c1ff]" />
             <span>إضافة سؤال جديد</span>
           </button>
           
           <button
             type="button"
             onClick={onBackToUpload}
-            className="flex items-center gap-1.5 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-xs rounded-xl transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-slate-500 dark:text-[#c7c4d7] hover:text-slate-800 dark:hover:text-white text-xs rounded-xl transition-colors cursor-pointer"
           >
             <ArrowRight className="w-4 h-4" />
             <span>رفع ملف آخر</span>
@@ -912,17 +892,8 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={handleExport}
-            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-[#e2e8f0] transition-colors cursor-pointer shadow-xs"
-          >
-            <Download className="w-4 h-4 text-[#3b4cb8]" />
-            <span>تصدير JSON</span>
-          </button>
-
-          <button
-            type="button"
             onClick={handlePreviewQuiz}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-[#3b4cb8] text-xs sm:text-sm font-bold rounded-xl border border-indigo-200 transition-colors cursor-pointer shadow-xs"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-[#8083ff]/15 dark:hover:bg-[#8083ff]/25 text-[#3b4cb8] dark:text-[#c0c1ff] text-xs sm:text-sm font-bold rounded-xl border border-indigo-200 dark:border-[#8083ff]/30 transition-colors cursor-pointer shadow-xs"
           >
             <Eye className="w-4 h-4" />
             <span>معاينة كطالب</span>
@@ -931,7 +902,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
           <button
             type="button"
             onClick={handlePublish}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all cursor-pointer transform hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm font-bold rounded-xl shadow-[0_0_14px_rgba(192,193,255,0.25)] transition-all cursor-pointer transform hover:-translate-y-0.5"
           >
             <Sparkles className="w-4 h-4" />
             <span>نشر الاختبار ({questions.length} مسألة)</span>
@@ -942,47 +913,47 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
 
       {/* Raw Extracted Text Modal */}
       {showRawTextModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white border border-[#e2e8f0] rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
             
-            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-[#262a35]">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#3b4cb8]" />
-                <h3 className="font-bold text-slate-900 text-base">النص الكامل المستخرج من المستند</h3>
+                <FileText className="w-5 h-5 text-[#3b4cb8] dark:text-[#c0c1ff]" />
+                <h3 className="font-bold text-slate-900 dark:text-[#dfe2f1] text-base">النص الكامل المستخرج من المستند</h3>
               </div>
               <button
                 onClick={() => setShowRawTextModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                className="p-1 text-slate-400 dark:text-[#908fa0] hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-[#262a35]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-4 flex-1 overflow-y-auto">
-              <p className="text-xs text-slate-500 mb-3">
+              <p className="text-xs text-slate-500 dark:text-[#c7c4d7] mb-3">
                 هذا هو النص الذي تم استخراجه حرفياً من ملف الـ PDF. يمكنك نسخه واستخدامه لتعديل الأسئلة وترتيبها يدوياً إذا كانت بعض الفقرات بحاجة لتعديل.
               </p>
               <textarea
                 readOnly
                 value={rawText}
-                className="w-full h-80 bg-[#f8fafc] border border-slate-200 rounded-xl p-3.5 text-xs text-slate-800 font-mono focus:outline-none"
+                className="w-full h-80 bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-3.5 text-xs text-slate-800 dark:text-[#dfe2f1] font-mono focus:outline-none"
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 border-t border-slate-100 bg-[#f8fafc]">
+            <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-[#262a35] bg-[#f8fafc] dark:bg-[#1c1f2a]">
               <button
                 type="button"
                 onClick={handleCopyRawText}
-                className="flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 text-slate-800 text-xs font-semibold rounded-lg border border-slate-200 transition-colors cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-800 dark:text-[#dfe2f1] text-xs font-semibold rounded-lg border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer shadow-xs"
               >
                 {copiedRawText ? (
                   <>
-                    <Check className="w-4 h-4 text-emerald-600" />
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-[#4edea3]" />
                     <span>تم النسخ للحافظة!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-4 h-4 text-slate-500" />
+                    <Copy className="w-4 h-4 text-slate-500 dark:text-[#908fa0]" />
                     <span>نسخ النص كاملاً</span>
                   </>
                 )}
@@ -1026,29 +997,29 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
 
       {/* Publish Success Modal */}
       {showPublishSuccessModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white border border-[#e2e8f0] rounded-2xl w-full max-w-md p-6 shadow-2xl text-center">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl w-full max-w-md p-6 shadow-2xl text-center">
             
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center mx-auto mb-4 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-[#4edea3]/10 text-emerald-600 dark:text-[#4edea3] border border-emerald-100 dark:border-[#4edea3]/30 flex items-center justify-center mx-auto mb-4 shadow-xs">
               <Sparkles className="w-7 h-7" />
             </div>
 
-            <h3 className="text-xl font-extrabold text-slate-900 mb-2">
+            <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#dfe2f1] mb-2">
               تم نشر الاختبار بنجاح! 🎉
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-600 mb-5 leading-relaxed">
-              أصبح اختبار <strong className="text-slate-900">"{examTitle}"</strong> متاحاً ومحفوظاً الآن في قسم <strong className="text-[#3b4cb8]">"اختباراتي"</strong> ليتمكن الطلاب من الدخول وتقديمه.
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-[#c7c4d7] mb-5 leading-relaxed">
+              أصبح اختبار <strong className="text-slate-900 dark:text-white">"{examTitle}"</strong> متاحاً ومحفوظاً الآن في قسم <strong className="text-[#3b4cb8] dark:text-[#c0c1ff]">"اختباراتي"</strong> ليتمكن الطلاب من الدخول وتقديمه.
             </p>
 
-            <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-3.5 mb-6 text-xs text-slate-600 space-y-1.5 text-right">
+            <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-3.5 mb-6 text-xs text-slate-600 dark:text-[#c7c4d7] space-y-1.5 text-right">
               <div className="flex justify-between">
                 <span>إجمالي الأسئلة:</span>
-                <span className="font-bold text-slate-900">{questions.length} مسألة</span>
+                <span className="font-bold text-slate-900 dark:text-[#dfe2f1]">{questions.length} مسألة</span>
               </div>
               <div className="flex justify-between">
                 <span>المدة الزمنية:</span>
-                <span className="font-bold text-slate-900">
+                <span className="font-bold text-slate-900 dark:text-[#dfe2f1]">
                   {durationMinutes > 0 ? `${durationMinutes} دقيقة` : 'بدون وقت محدد'}
                 </span>
               </div>
@@ -1061,7 +1032,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                   setShowPublishSuccessModal(false);
                   onStartQuiz(getSettings());
                 }}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-indigo-500/15 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_14px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
               >
                 <Eye className="w-4 h-4" />
                 <span>معاينة ودخول الاختبار الآن كطالب</span>
@@ -1073,7 +1044,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
                   setShowPublishSuccessModal(false);
                   onGoToMyExams();
                 }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-[#1c1f2a] hover:bg-slate-100 dark:hover:bg-[#262a35] text-slate-800 dark:text-[#dfe2f1] text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer"
               >
                 <span>الذهاب إلى قسم "اختباراتي"</span>
               </button>
@@ -1081,7 +1052,7 @@ export const ReviewStage: React.FC<ReviewStageProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPublishSuccessModal(false)}
-                className="w-full py-2 text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                className="w-full py-2 text-xs text-slate-400 dark:text-[#908fa0] hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer"
               >
                 البقاء والمتابعة في صفحة التعديل
               </button>

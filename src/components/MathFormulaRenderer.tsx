@@ -153,7 +153,7 @@ export const MathFormulaRenderer: React.FC<MathFormulaRendererProps> = ({
     return renderSmartArabicMath(processedText);
   }, [text, className]);
 
-  return <span className={`math-formula-container inline-block ${className}`}>{renderedContent}</span>;
+  return <span className={`math-formula-container inline ${className}`}>{renderedContent}</span>;
 };
 
 /**
@@ -203,17 +203,17 @@ function renderSmartArabicMath(str: string): React.ReactNode {
       pieces.push(
         <span
           key={`frac-${counter++}`}
-          className="inline-flex flex-col items-center justify-center align-middle mx-1.5 my-1 text-center font-bold select-none text-[0.95em] group"
-          style={{ verticalAlign: '-0.7em' }}
+          className="inline-flex flex-col items-center justify-center align-middle mx-1.5 my-0.5 text-center font-bold select-none text-[0.95em] leading-none group"
+          style={{ verticalAlign: 'middle' }}
         >
           {/* Numerator (البسط) */}
-          <span className="px-2 py-0.5 leading-tight text-slate-900 dark:text-slate-100">
+          <span className="px-1.5 py-0.5 leading-tight text-slate-900 dark:text-slate-100">
             {renderSubFormulas(num)}
           </span>
           {/* Solid Fraction Line */}
-          <span className="w-full min-w-[20px] h-[2px] bg-slate-700 dark:bg-slate-300 rounded-[1px]" />
+          <span className="w-full min-w-[18px] h-[1.5px] bg-slate-700 dark:bg-slate-300 rounded-[1px]" />
           {/* Denominator (المقام) */}
-          <span className="px-2 py-0.5 leading-tight text-slate-800 dark:text-slate-200">
+          <span className="px-1.5 py-0.5 leading-tight text-slate-800 dark:text-slate-200">
             {renderSubFormulas(den)}
           </span>
         </span>
