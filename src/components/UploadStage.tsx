@@ -120,6 +120,7 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
         const allRawTexts: string[] = [];
         const allPageImages: string[] = [];
 
+        let lastScanError = '';
         for (let p = 1; p <= totalPages; p++) {
           setProgressPercent(Math.round(((p - 0.5) / totalPages) * 100));
           setLoadingMessage(`جاري قراءة واستخراج الصفحة (${p} من ${totalPages}) بالمسح الذكي المتقدم...`);
@@ -147,6 +148,7 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
             }
           } catch (pageErr: any) {
             console.warn(`Page ${p} scan error:`, pageErr);
+            lastScanError = pageErr?.message || '';
             // If previous page(s) succeeded, do not abort; record notice
             allRawTexts.push(`--- تعذر قراءة بعض أسئلة الصفحة ${p} آلياً ---`);
           }
@@ -160,7 +162,7 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
         setCachedPagesForRetry({ images: allPageImages, name: firstFile.name });
 
         if (allQuestions.length === 0) {
-          throw new Error('لم يتم العثور على أسئلة واضحة في صفحات الملف. يرجى التأكد من وضوح الصفحات أو استخدام خيار اللصق المباشر.');
+          throw new Error(lastScanError || 'لم يتم العثور على أسئلة واضحة في صفحات الملف. يرجى التأكد من وضوح الصفحات أو استخدام خيار اللصق المباشر.');
         }
 
         const title = firstFile.name.replace(/\.[^/.]+$/, '');
