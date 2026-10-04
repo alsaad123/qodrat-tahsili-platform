@@ -672,6 +672,8 @@ export default function App() {
             settings={examSettings}
             attemptNumber={attemptNumber}
             userRole={userRole}
+            theme={theme}
+            onToggleTheme={setTheme}
             onAnswerChange={handleAnswerChange}
             onScratchpadChange={handleScratchpadChange}
             onToggleFlag={handleToggleFlag}

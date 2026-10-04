@@ -4,7 +4,7 @@ import {
   ArrowLeft, ArrowRight, Bookmark, CheckCircle2, 
   Clock, Edit3, Trash2, Check, Lightbulb,
   Eraser, PenTool, Undo2, GripVertical, ListOrdered, Sparkles, RotateCcw,
-  ChevronUp, ChevronDown, Plus, X
+  ChevronUp, ChevronDown, Plus, X, Sun, Moon
 } from 'lucide-react';
 import { MathFormulaRenderer } from './MathFormulaRenderer';
 
@@ -17,6 +17,8 @@ interface QuizStageProps {
   settings?: ExamSettings;
   attemptNumber?: number;
   userRole?: UserRole;
+  theme?: 'light' | 'dark';
+  onToggleTheme?: (theme: 'light' | 'dark') => void;
   onAnswerChange: (questionId: string, answerIdx: number) => void;
   onScratchpadChange: (questionId: string, text: string) => void;
   onToggleFlag: (questionId: string) => void;
@@ -33,6 +35,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
   settings,
   attemptNumber = 1,
   userRole = 'teacher',
+  theme = 'light',
+  onToggleTheme,
   onAnswerChange,
   onScratchpadChange,
   onToggleFlag,
@@ -724,6 +728,22 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               <Clock className="w-3 h-3" />
               <span>{formatTime(hasTimeLimit ? remainingSeconds : secondsElapsed)}</span>
             </div>
+
+            {/* Mobile Theme Toggle Button */}
+            {onToggleTheme && (
+              <button
+                type="button"
+                onClick={() => onToggleTheme(theme === 'light' ? 'dark' : 'light')}
+                className="p-1 rounded-lg bg-white dark:bg-[#262a35] border border-slate-200 dark:border-[#313540] text-slate-700 dark:text-[#dfe2f1] shrink-0 cursor-pointer shadow-2xs"
+                title={theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الساطع'}
+              >
+                {theme === 'light' ? (
+                  <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                ) : (
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                )}
+              </button>
+            )}
           </div>
 
           {/* Compact Question Card (Hidden on mobile if scratchpad tab is active, or if collapsed) */}
@@ -1138,6 +1158,38 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
         {/* Left Side: Vertical Status & Question Palette (Desktop Only) */}
         <aside className="hidden md:flex w-60 sm:w-68 shrink-0 h-full flex-col bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-3 shadow-stitch-card overflow-hidden">
+          {/* Theme Toggle Pill (النمط الساطع والداكن) */}
+          {onToggleTheme && (
+            <div className="flex items-center justify-between bg-[#f8fafc] dark:bg-[#1c1f2a] p-1 rounded-xl border border-slate-200 dark:border-[#313540] mb-2 shrink-0 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => onToggleTheme('light')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  theme === 'light'
+                    ? 'bg-white text-amber-700 shadow-xs border border-slate-200/80 font-bold'
+                    : 'text-slate-500 dark:text-[#c7c4d7] hover:text-slate-800 dark:hover:text-white'
+                }`}
+                title="نمط ساطع"
+              >
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span>نمط ساطع</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleTheme('dark')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-[#4f46e5] text-white shadow-xs font-bold'
+                    : 'text-slate-500 dark:text-[#c7c4d7] hover:text-slate-800 dark:hover:text-white'
+                }`}
+                title="نمط داكن"
+              >
+                <Moon className="w-3.5 h-3.5 text-indigo-200" />
+                <span>نمط داكن</span>
+              </button>
+            </div>
+          )}
+
           {/* Timer Card */}
           <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-2.5 mb-2 shrink-0 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
@@ -1395,6 +1447,36 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Mobile Theme Toggle Pill inside palette */}
+            {onToggleTheme && (
+              <div className="flex items-center justify-between bg-[#f8fafc] dark:bg-[#1c1f2a] p-1 rounded-xl border border-slate-200 dark:border-[#313540] my-2 shrink-0 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => onToggleTheme('light')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    theme === 'light'
+                      ? 'bg-white text-amber-700 shadow-xs border border-slate-200/80 font-bold'
+                      : 'text-slate-500 dark:text-[#c7c4d7]'
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <span>نمط ساطع</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onToggleTheme('dark')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    theme === 'dark'
+                      ? 'bg-[#4f46e5] text-white shadow-xs font-bold'
+                      : 'text-slate-500 dark:text-[#c7c4d7]'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5 text-indigo-200" />
+                  <span>نمط داكن</span>
+                </button>
+              </div>
+            )}
 
             {/* Progress bar */}
             <div className="py-2.5 shrink-0">
