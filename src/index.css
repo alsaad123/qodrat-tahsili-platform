@@ -2,6 +2,22 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-nightfall-canvas: #0f131d;
+  --color-nightfall-card: #171b26;
+  --color-nightfall-inner: #1c1f2a;
+  --color-nightfall-high: #262a35;
+  --color-nightfall-highest: #313540;
+  --color-nightfall-border: #262a35;
+  --color-nightfall-subtle: #1f293d;
+  --color-nightfall-text: #dfe2f1;
+  --color-nightfall-variant: #c7c4d7;
+  --color-nightfall-outline: #908fa0;
+  --color-nightfall-primary: #c0c1ff;
+  --color-nightfall-secondary: #4edea3;
+  --color-nightfall-tertiary: #4cd7f6;
+}
+
 @layer base {
   :root {
     --bg-canvas: #f4f7fb;
@@ -9,8 +25,8 @@
   }
 
   html.dark {
-    --bg-canvas: #0b0f19;
-    --text-main: #f8fafc;
+    --bg-canvas: #0f131d;
+    --text-main: #dfe2f1;
     color-scheme: dark;
   }
 
@@ -18,11 +34,11 @@
     font-family: 'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--bg-canvas);
     color: var(--text-main);
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
-/* Stitch Modern EdTech Clean Scrollbar */
+/* Stitch Noor Nightfall Clean Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -31,7 +47,7 @@
   background: #f1f5f9;
 }
 html.dark ::-webkit-scrollbar-track {
-  background: #151c2c;
+  background: #0f131d;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -39,36 +55,44 @@ html.dark ::-webkit-scrollbar-track {
   border-radius: 9999px;
 }
 html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #262a35;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #313540;
 }
 
-/* Custom Soft Shadows from Stitch */
+/* Custom Soft Shadows from Stitch Noor Nightfall */
 .shadow-stitch-card {
   box-shadow: 0 4px 14px 0 rgba(46, 56, 140, 0.05);
 }
 html.dark .shadow-stitch-card {
-  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.45);
 }
 
 .shadow-stitch-float {
   box-shadow: 0 12px 28px -4px rgba(46, 56, 140, 0.16);
 }
 html.dark .shadow-stitch-float {
-  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 0 16px rgba(192, 193, 255, 0.1);
 }
 
 .shadow-stitch-soft {
   box-shadow: 0 2px 10px rgba(18, 38, 63, 0.04);
 }
 html.dark .shadow-stitch-soft {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.shadow-stitch-glow {
+  box-shadow: 0 0 14px rgba(192, 193, 255, 0.22);
+}
+
+.shadow-stitch-mint {
+  box-shadow: 0 0 16px rgba(78, 222, 163, 0.22);
 }
 
 /* Math Fraction Styling for Crisp Display */

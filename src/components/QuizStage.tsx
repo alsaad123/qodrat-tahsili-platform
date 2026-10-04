@@ -152,6 +152,164 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     setIsDraggingSplitter(true);
   };
 
+  // Resizable split state for Question Text vs Image (horizontal drag)
+  const [questionTextPercent, setQuestionTextPercent] = useState<number>(50);
+  const [isDraggingQuestionSplitter, setIsDraggingQuestionSplitter] = useState<boolean>(false);
+  const questionSplitContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Vertical resize & collapse state for Question Box
+  const [questionHeight, setQuestionHeight] = useState<number | null>(null);
+  const [isQuestionCollapsed, setIsQuestionCollapsed] = useState<boolean>(false);
+  const [isDraggingQuestionHeight, setIsDraggingQuestionHeight] = useState<boolean>(false);
+  const questionCardRef = useRef<HTMLDivElement | null>(null);
+  const dragStartYRef = useRef<number>(0);
+  const startHeightRef = useRef<number>(0);
+  const hasDraggedQuestionHeightRef = useRef<boolean>(false);
+
+  // Dragging event listeners for split between Question Text and Image
+  useEffect(() => {
+    if (!isDraggingQuestionSplitter) return;
+
+    const originalUserSelect = document.body.style.userSelect;
+    const originalCursor = document.body.style.cursor;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (questionSplitContainerRef.current) {
+        const rect = questionSplitContainerRef.current.getBoundingClientRect();
+        // In RTL: question text is on the right side
+        const distFromRight = rect.right - e.clientX;
+        const pct = Math.min(Math.max((distFromRight / rect.width) * 100, 0), 100);
+        setQuestionTextPercent(Math.round(pct));
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      if (questionSplitContainerRef.current) {
+        const rect = questionSplitContainerRef.current.getBoundingClientRect();
+        const distFromRight = rect.right - e.touches[0].clientX;
+        const pct = Math.min(Math.max((distFromRight / rect.width) * 100, 0), 100);
+        setQuestionTextPercent(Math.round(pct));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingQuestionSplitter(false);
+      document.body.style.userSelect = originalUserSelect;
+      document.body.style.cursor = originalCursor;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleMouseUp);
+      document.body.style.userSelect = originalUserSelect;
+      document.body.style.cursor = originalCursor;
+    };
+  }, [isDraggingQuestionSplitter]);
+
+  const handleQuestionSplitterMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingQuestionSplitter(true);
+  };
+
+  const handleQuestionSplitterTouchStart = () => {
+    setIsDraggingQuestionSplitter(true);
+  };
+
+  // Dragging event listeners for vertical Question Box resizing & collapse
+  useEffect(() => {
+    if (!isDraggingQuestionHeight) return;
+
+    const originalUserSelect = document.body.style.userSelect;
+    const originalCursor = document.body.style.cursor;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'row-resize';
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - dragStartYRef.current;
+      if (Math.abs(deltaY) > 4) {
+        hasDraggedQuestionHeightRef.current = true;
+      }
+      const newHeight = startHeightRef.current + deltaY;
+      if (newHeight < 35) {
+        // Dragged all the way up: collapse question
+        setIsQuestionCollapsed(true);
+        setQuestionHeight(0);
+      } else {
+        setIsQuestionCollapsed(false);
+        setQuestionHeight(Math.min(Math.max(newHeight, 50), 450));
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      const deltaY = e.touches[0].clientY - dragStartYRef.current;
+      if (Math.abs(deltaY) > 4) {
+        hasDraggedQuestionHeightRef.current = true;
+      }
+      const newHeight = startHeightRef.current + deltaY;
+      if (newHeight < 35) {
+        setIsQuestionCollapsed(true);
+        setQuestionHeight(0);
+      } else {
+        setIsQuestionCollapsed(false);
+        setQuestionHeight(Math.min(Math.max(newHeight, 50), 450));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingQuestionHeight(false);
+      document.body.style.userSelect = originalUserSelect;
+      document.body.style.cursor = originalCursor;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleMouseUp);
+      document.body.style.userSelect = originalUserSelect;
+      document.body.style.cursor = originalCursor;
+    };
+  }, [isDraggingQuestionHeight]);
+
+  const handleStartDragQuestionHeight = (clientY: number) => {
+    dragStartYRef.current = clientY;
+    hasDraggedQuestionHeightRef.current = false;
+    if (questionCardRef.current && !isQuestionCollapsed) {
+      startHeightRef.current = questionCardRef.current.getBoundingClientRect().height;
+    } else {
+      startHeightRef.current = 0;
+    }
+    setIsDraggingQuestionHeight(true);
+  };
+
+  const handleToggleQuestionCollapse = () => {
+    if (hasDraggedQuestionHeightRef.current) return;
+    if (isQuestionCollapsed) {
+      setIsQuestionCollapsed(false);
+      if (!questionHeight || questionHeight < 50) {
+        setQuestionHeight(null);
+      }
+    } else {
+      setIsQuestionCollapsed(true);
+    }
+  };
+
   // Timer counter
   useEffect(() => {
     let interval: any = null;
@@ -163,10 +321,15 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     return () => clearInterval(interval);
   }, [isTimerRunning]);
 
-  // Reset hint state and mobile tab on question change
+  // Reset hint state, mobile tab, and uncollapse on question change
   useEffect(() => {
     setShowHint(false);
     setMobileTab('question');
+    setIsQuestionCollapsed(false);
+    if (questionHeight !== null && questionHeight < 50) {
+      setQuestionHeight(null);
+    }
+    setQuestionTextPercent(50);
   }, [currentIndex]);
 
   const currentQ = questions[currentIndex];
@@ -286,6 +449,9 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     if (canvasContainerRef.current) {
       canvasContainerRef.current.scrollTop = 0;
     }
+
+    // 5. Reset question/media split to 50/50
+    setQuestionTextPercent(50);
   }, [currentIndex, currentQ, restoreDrawingForQuestion, undoStack]);
 
   // When switching to draw mode, ensure canvas is sized and drawing for current question is loaded
@@ -519,14 +685,14 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
           
           {/* Mobile Tab Switcher: [السؤال والخيارات] | [مسودة الرسم ✍️] */}
-          <div className="flex md:hidden items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 rounded-xl mb-2 border border-slate-200 dark:border-slate-800 text-xs shrink-0">
+          <div className="flex md:hidden items-center bg-[#f1f5f9] dark:bg-[#1c1f2a] p-1 rounded-xl mb-2 border border-slate-200 dark:border-[#313540] text-xs shrink-0">
             <button
               type="button"
               onClick={() => setMobileTab('question')}
               className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 mobileTab === 'question'
-                  ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
+                  ? 'bg-white dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-[#c7c4d7]'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -538,95 +704,193 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               onClick={() => setMobileTab('scratchpad')}
               className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer relative ${
                 mobileTab === 'scratchpad'
-                  ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
+                  ? 'bg-white dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-[#c7c4d7]'
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>مسودة الرسم</span>
               {undoStack[currentQ.id]?.length ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#3b4cb8] animate-pulse"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4f46e5] dark:bg-[#c0c1ff] animate-pulse"></span>
               ) : null}
             </button>
+
+            {/* Mobile Timer Badge */}
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-mono font-bold shrink-0 ${
+              isTimeCritical
+                ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 animate-pulse'
+                : 'bg-white dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] border-slate-200 dark:border-[#313540]'
+            }`}>
+              <Clock className="w-3 h-3" />
+              <span>{formatTime(hasTimeLimit ? remainingSeconds : secondsElapsed)}</span>
+            </div>
           </div>
 
-          {/* Compact Question Card (Hidden on mobile if scratchpad tab is active) */}
-          <div className={`bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 sm:p-3.5 mb-2 shadow-stitch-card shrink-0 ${
-            mobileTab === 'scratchpad' ? 'hidden md:block' : 'block'
-          }`}>
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-lg bg-[#eef2ff] dark:bg-indigo-950 text-[#3b4cb8] dark:text-indigo-400 flex items-center justify-center font-bold text-[11px]">
-                  س
-                </span>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">السؤال {currentIndex + 1}</span>
-                {currentQ.category && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#eef2ff] dark:bg-indigo-950 text-[#3b4cb8] dark:text-indigo-400 border border-[#c7d2fe] dark:border-indigo-800">
-                    {currentQ.category}
-                  </span>
+          {/* Compact Question Card (Hidden on mobile if scratchpad tab is active, or if collapsed) */}
+          {!isQuestionCollapsed && (
+            <div 
+              className={`relative mb-2 shrink-0 ${
+                mobileTab === 'scratchpad' ? 'hidden md:block' : 'block'
+              }`}
+            >
+              {/* Question Card */}
+              <div 
+                ref={questionCardRef}
+                style={questionHeight !== null ? { height: `${questionHeight}px` } : undefined}
+                className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-3 sm:p-3.5 shadow-stitch-card overflow-hidden flex flex-col"
+              >
+                {/* Question Content: If question has image/diagram, show 2-column resizable layout */}
+                {Boolean(currentQ.imageUrl || currentQ.diagramSvg) ? (
+                  <div 
+                    ref={questionSplitContainerRef}
+                    className={`relative flex items-stretch min-h-0 w-full overflow-hidden select-none ${
+                      questionHeight !== null ? 'flex-1 h-full' : 'h-28 sm:h-32'
+                    }`}
+                  >
+                    {/* Right Side: Question Text & Inline Hint */}
+                    <div 
+                      style={{ width: `${questionTextPercent}%` }}
+                      className="h-full overflow-y-auto pr-1 flex flex-col justify-start shrink-0 min-w-0"
+                    >
+                      <div className="leading-relaxed">
+                        <h2 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#dfe2f1] inline">
+                          <MathFormulaRenderer text={currentQ.question} />
+                        </h2>
+
+                        {currentQ.hint && currentQ.hint.trim().length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setShowHint(!showHint)}
+                            className="inline-flex items-center gap-1 text-[10px] text-amber-800 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 border border-amber-200 dark:border-amber-800/80 px-2 py-0.5 rounded-full transition-colors cursor-pointer font-medium mr-1.5 align-middle shadow-2xs"
+                          >
+                            <Lightbulb className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+                            <span>{showHint ? 'إخفاء التلميح' : 'تلميح الحل'}</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {showHint && currentQ.hint && (
+                        <div className="mt-1.5 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs leading-relaxed animate-fadeIn">
+                          <p className="font-bold flex items-center gap-1 mb-0.5 text-[10px]">
+                            <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" /> طريقة الحل:
+                          </p>
+                          <div className="whitespace-pre-line font-sans text-[11px]">
+                            <MathFormulaRenderer text={currentQ.hint} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Draggable Splitter Handle between Question & Image */}
+                    <div
+                      onMouseDown={handleQuestionSplitterMouseDown}
+                      onTouchStart={handleQuestionSplitterTouchStart}
+                      title="اسحب لتكبير جهة السؤال أو جهة الصورة"
+                      className="relative z-10 w-4 -mx-1.5 shrink-0 flex items-center justify-center cursor-col-resize group select-none touch-none"
+                    >
+                      <div className="w-1.5 h-10 rounded-full bg-slate-300 dark:bg-[#313540] group-hover:bg-[#4f46e5] transition-colors flex items-center justify-center shadow-xs">
+                        <span className="text-[7px] text-slate-500 group-hover:text-white font-bold select-none leading-none">‹›</span>
+                      </div>
+                    </div>
+
+                    {/* Left Side: Image or Diagram */}
+                    <div 
+                      style={{ width: `${100 - questionTextPercent}%` }}
+                      className="h-full flex items-center justify-center p-1 bg-[#f8fafc] dark:bg-[#1c1f2a] rounded-xl border border-slate-200 dark:border-[#313540] overflow-hidden shrink-0 min-w-0"
+                    >
+                      {currentQ.imageUrl ? (
+                        <img 
+                          src={currentQ.imageUrl} 
+                          alt="رسمة السؤال التوضيحية" 
+                          className="max-h-full max-w-full object-contain rounded-lg"
+                        />
+                      ) : currentQ.diagramSvg ? (
+                        <div 
+                          className="max-h-full max-w-full flex items-center justify-center overflow-hidden"
+                          dangerouslySetInnerHTML={{ __html: currentQ.diagramSvg }}
+                        />
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  /* No media: Normal full width text with inline hint */
+                  <div className={`overflow-y-auto ${questionHeight !== null ? 'flex-1 min-h-0' : ''}`}>
+                    <div className="leading-relaxed">
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-[#dfe2f1] inline">
+                        <MathFormulaRenderer text={currentQ.question} />
+                      </h2>
+
+                      {currentQ.hint && currentQ.hint.trim().length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowHint(!showHint)}
+                          className="inline-flex items-center gap-1 text-[11px] text-amber-800 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 border border-amber-200 dark:border-amber-800/80 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer font-medium mr-2 align-middle shadow-2xs"
+                        >
+                          <Lightbulb className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                          <span>{showHint ? 'إخفاء التلميح' : 'تلميح الحل'}</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {showHint && currentQ.hint && (
+                      <div className="mt-2 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs leading-relaxed animate-fadeIn">
+                        <p className="font-bold flex items-center gap-1 mb-0.5 text-[11px]">
+                          <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" /> طريقة الحل المقترحة:
+                        </p>
+                        <div className="whitespace-pre-line font-sans text-xs">
+                          <MathFormulaRenderer text={currentQ.hint} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
-              <div className="flex items-center gap-1.5">
-                {/* Mobile Timer Badge */}
-                <div className={`md:hidden flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[11px] font-mono font-bold shadow-2xs ${
-                  isTimeCritical
-                    ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
-                    : 'bg-[#f8fafc] dark:bg-[#1a2236] text-[#3b4cb8] dark:text-indigo-400 border-slate-200 dark:border-slate-800'
-                }`}>
-                  <Clock className="w-3 h-3" />
-                  <span>{formatTime(hasTimeLimit ? remainingSeconds : secondsElapsed)}</span>
-                </div>
-
-                {currentQ.hint && currentQ.hint.trim().length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowHint(!showHint)}
-                    className="flex items-center gap-1 text-[11px] text-amber-800 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer font-medium"
-                  >
-                    <Lightbulb className="w-3 h-3 text-amber-600" />
-                    <span>{showHint ? 'إخفاء التلميح' : 'تلميح الحل'}</span>
-                  </button>
-                )}
+              {/* Connected Bottom Drag Handle Line sitting right on the bottom border (as in blue drawing) */}
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleStartDragQuestionHeight(e.clientY);
+                }}
+                onTouchStart={(e) => {
+                  if (e.touches[0]) {
+                    handleStartDragQuestionHeight(e.touches[0].clientY);
+                  }
+                }}
+                onClick={handleToggleQuestionCollapse}
+                title="اسحب لتعديل ارتفاع السؤال أو انقر للإخفاء"
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center cursor-row-resize py-0.5 px-4 group select-none"
+              >
+                <div className="w-12 h-1.5 rounded-full bg-slate-300 dark:bg-[#313540] group-hover:bg-[#4f46e5] transition-colors shadow-2xs" />
               </div>
             </div>
+          )}
 
-            {/* Question Text with Math/Formula Rendering */}
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed whitespace-pre-line">
-              <MathFormulaRenderer text={currentQ.question} />
-            </h2>
-
-            {/* Diagram SVG if available */}
-            {currentQ.diagramSvg && (
-              <div 
-                className="my-1.5 p-2 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center max-h-24 sm:max-h-28 overflow-hidden"
-                dangerouslySetInnerHTML={{ __html: currentQ.diagramSvg }}
-              />
-            )}
-
-            {/* Image if available */}
-            {currentQ.imageUrl && (
-              <div className="my-1.5 p-1 bg-[#f8fafc] dark:bg-[#1a2236] rounded-xl border border-slate-200 dark:border-slate-800 flex justify-center">
-                <img 
-                  src={currentQ.imageUrl} 
-                  alt="رسمة السؤال التوضيحية" 
-                  className="max-h-24 sm:max-h-28 rounded-lg object-contain"
-                />
+          {/* When collapsed: Thin bar at top with just the line so user can pull it back */}
+          {isQuestionCollapsed && (
+            <div
+              className={`w-full flex items-center justify-center mb-2 shrink-0 select-none ${
+                mobileTab === 'scratchpad' ? 'hidden md:flex' : 'flex'
+              }`}
+            >
+              <div
+                onClick={handleToggleQuestionCollapse}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleStartDragQuestionHeight(e.clientY);
+                }}
+                onTouchStart={(e) => {
+                  if (e.touches[0]) {
+                    handleStartDragQuestionHeight(e.touches[0].clientY);
+                  }
+                }}
+                title="اسحب لأسفل أو انقر لإظهار السؤال"
+                className="w-full max-w-[120px] py-1 bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-full shadow-2xs hover:border-[#4f46e5] flex items-center justify-center cursor-row-resize group transition-all"
+              >
+                <div className="w-10 h-1.5 rounded-full bg-[#4f46e5] group-hover:bg-indigo-500 transition-colors" />
               </div>
-            )}
-
-            {/* Collapsible Hint */}
-            {showHint && currentQ.hint && (
-              <div className="mt-1.5 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs leading-relaxed animate-fadeIn">
-                <p className="font-bold flex items-center gap-1 mb-0.5 text-[11px]">
-                  <Sparkles className="w-3 h-3 text-amber-600" /> طريقة الحل المقترحة:
-                </p>
-                <div className="whitespace-pre-line font-sans text-xs">
-                  <MathFormulaRenderer text={currentQ.hint} />
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Split Row: Separate Answers Box & Notes Box with Width Dragging */}
           <div 
@@ -638,18 +902,18 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               style={{
                 width: typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : `${optionsWidthPercent}%`
               }}
-              className={`bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 sm:p-3.5 shadow-stitch-card flex flex-col h-fit max-h-full shrink-0 relative overflow-hidden ${
+              className={`bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-3 sm:p-3.5 shadow-stitch-card flex flex-col h-fit max-h-full shrink-0 relative overflow-hidden ${
                 mobileTab === 'question' ? 'w-full flex' : 'hidden md:flex'
               }`}
             >
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 shrink-0">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-[#262a35] shrink-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-4 h-4 rounded bg-[#eef2ff] dark:bg-indigo-950 text-[#3b4cb8] dark:text-indigo-400 flex items-center justify-center font-bold text-[10px]">
+                  <span className="w-4 h-4 rounded bg-[#eef2ff] dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] flex items-center justify-center font-bold text-[10px]">
                     ✓
                   </span>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-xs">خيارات الإجابة</h3>
+                  <h3 className="font-bold text-slate-900 dark:text-[#dfe2f1] text-xs">خيارات الإجابة</h3>
                 </div>
-                <span className="text-[10px] text-slate-400">حدد إجابة</span>
+                <span className="text-[10px] text-slate-400 dark:text-[#908fa0]">حدد إجابة</span>
               </div>
 
               <div className="space-y-1.5 overflow-y-auto pr-0.5">
@@ -664,14 +928,14 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                       onClick={() => onAnswerChange(currentQ.id, optIdx)}
                       className={`w-full text-right p-2.5 sm:p-3 rounded-xl border transition-all flex items-center gap-2 group cursor-pointer ${
                         isSelected
-                          ? 'bg-[#eef2ff] dark:bg-indigo-950/60 border-[#3b4cb8] shadow-xs ring-2 ring-[#3b4cb8]/20 text-[#3b4cb8] dark:text-indigo-300 font-bold'
-                          : 'bg-[#f8fafc] dark:bg-[#1a2236] hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 hover:border-slate-300 text-slate-800 dark:text-slate-200'
+                          ? 'bg-[#eef2ff] dark:bg-[#4f46e5]/15 border-[#4f46e5] dark:border-[#6366f1] shadow-xs ring-2 ring-[#4f46e5]/20 dark:ring-[#6366f1]/20 text-[#4f46e5] dark:text-[#c0c1ff] font-bold'
+                          : 'bg-[#f8fafc] dark:bg-[#1c1f2a] hover:bg-white dark:hover:bg-[#262a35] border-slate-200 dark:border-[#313540] hover:border-slate-300 dark:hover:border-[#6366f1]/40 text-slate-800 dark:text-[#dfe2f1]'
                       }`}
                     >
                       <span className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
                         isSelected
-                          ? 'bg-[#3b4cb8] text-white shadow-xs'
-                          : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 group-hover:border-[#3b4cb8]'
+                          ? 'bg-[#4f46e5] text-white shadow-xs'
+                          : 'bg-white dark:bg-[#262a35] text-slate-600 dark:text-[#c7c4d7] border border-slate-200 dark:border-[#313540] group-hover:border-[#4f46e5]'
                       }`}>
                         {label}
                       </span>
@@ -682,8 +946,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
                       <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                         isSelected
-                          ? 'border-[#3b4cb8] bg-[#3b4cb8] text-white'
-                          : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400'
+                          ? 'border-[#4f46e5] bg-[#4f46e5] text-white'
+                          : 'border-slate-300 dark:border-[#313540] bg-white dark:bg-[#262a35] group-hover:border-slate-400'
                       }`}>
                         {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                       </div>
@@ -695,7 +959,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 <button
                   type="button"
                   onClick={() => setMobileTab('scratchpad')}
-                  className="md:hidden mt-2.5 w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold text-[#3b4cb8] dark:text-indigo-300 bg-[#eef2ff] dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-colors shadow-2xs"
+                  className="md:hidden mt-2.5 w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold text-[#4f46e5] dark:text-[#c0c1ff] bg-[#eef2ff] dark:bg-[#262a35] border border-indigo-200 dark:border-[#313540] hover:bg-indigo-100 dark:hover:bg-[#313540] transition-colors shadow-2xs"
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>فتح مسودة الرسم والحل الرياضي ✍️</span>
@@ -709,7 +973,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 title="اسحب لتكبير أو تصغير عرض مربع الخيارات"
                 className="hidden md:flex absolute left-0 top-0 bottom-0 w-3 hover:w-4 bg-transparent hover:bg-indigo-500/10 cursor-col-resize items-center justify-center group z-10"
               >
-                <div className="w-1 h-8 rounded-full bg-slate-300 group-hover:bg-[#3b4cb8] transition-colors flex items-center justify-center">
+                <div className="w-1 h-8 rounded-full bg-slate-300 group-hover:bg-[#4f46e5] transition-colors flex items-center justify-center">
                   <span className="text-[8px] text-slate-400 group-hover:text-white font-bold select-none">›</span>
                 </div>
               </div>
@@ -720,264 +984,142 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               style={{
                 width: typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : `calc(${100 - optionsWidthPercent}% - 10px)`
               }}
-              className={`bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-stitch-card flex flex-col flex-1 h-full min-h-0 relative overflow-hidden ${
+              className={`bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-2.5 sm:p-3 shadow-stitch-card flex flex-col flex-1 h-full min-h-0 relative overflow-hidden ${
                 mobileTab === 'scratchpad' ? 'w-full flex' : 'hidden md:flex'
               }`}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 dark:border-slate-800 shrink-0">
-                <div className="flex items-center gap-1.5">
-                  <Edit3 className="w-3.5 h-3.5 text-[#3b4cb8] dark:text-indigo-400" />
-                  <h3 className="font-bold text-slate-900 dark:text-white text-xs">مسودة الطالب الرياضية</h3>
-                  
-                  {/* Quick return button on mobile */}
+              {/* Drawing Toolbar - Compact and unified on right */}
+              <div className="mb-2 p-1 bg-[#f8fafc] dark:bg-[#1c1f2a] rounded-xl border border-slate-200 dark:border-[#313540] flex items-center gap-1.5 text-xs shrink-0 overflow-x-auto">
+                {/* 1. Pen / Eraser tool switch */}
+                <div className="flex items-center gap-1 bg-white dark:bg-[#262a35] p-0.5 rounded-lg border border-slate-200 dark:border-[#313540] shrink-0">
                   <button
                     type="button"
-                    onClick={() => setMobileTab('question')}
-                    className="md:hidden mr-1 flex items-center gap-1 text-[10px] font-bold text-[#3b4cb8] dark:text-indigo-300 bg-[#eef2ff] dark:bg-indigo-950/60 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800"
+                    onClick={() => setDrawTool('pen')}
+                    className={`flex items-center gap-1 px-2 py-0.5 rounded font-semibold transition-colors cursor-pointer ${
+                      drawTool === 'pen'
+                        ? 'bg-[#4f46e5] text-white shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800 dark:text-[#c7c4d7]'
+                    }`}
+                    title="قلم"
                   >
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>العودة للخيارات</span>
+                    <PenTool className="w-3 h-3" />
+                    <span className="text-[10px]">قلم</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDrawTool('eraser')}
+                    className={`flex items-center gap-1 px-2 py-0.5 rounded font-semibold transition-colors cursor-pointer ${
+                      drawTool === 'eraser'
+                        ? 'bg-amber-500 text-white shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800 dark:text-[#c7c4d7]'
+                    }`}
+                    title="ممحاة"
+                  >
+                    <Eraser className="w-3 h-3" />
+                    <span className="text-[10px]">ممحاة</span>
                   </button>
                 </div>
 
-                {/* Mode switch */}
-                <div className="flex items-center gap-1 bg-[#f1f5f9] dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px]">
+                {/* 2. Colors */}
+                {drawTool === 'pen' && (
+                  <div className="flex items-center gap-2 px-1 shrink-0">
+                    {[
+                      { color: '#6366f1', name: 'نيلي' },
+                      { color: '#10b981', name: 'أخضر' },
+                      { color: '#f59e0b', name: 'برتقالي' },
+                      { color: '#ef4444', name: 'أحمر' }
+                    ].map((item) => (
+                      <button
+                        key={item.color}
+                        type="button"
+                        onClick={() => setPenColor(item.color)}
+                        className={`w-4 h-4 rounded-full transition-transform cursor-pointer ${
+                          penColor === item.color
+                            ? 'scale-110 ring-2 ring-offset-1 ring-[#4f46e5] dark:ring-[#c0c1ff] shadow-xs'
+                            : 'opacity-70 hover:opacity-100'
+                        }`}
+                        style={{ backgroundColor: item.color }}
+                        title={item.name}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Divider between tools and actions */}
+                <div className="h-4 w-px bg-slate-200 dark:bg-[#313540] mx-0.5 shrink-0" />
+
+                {/* 3. Undo and Clear buttons grouped on the right beside tools (Icons only) */}
+                <div className="flex items-center gap-0.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() => setScratchpadMode('draw')}
-                    className={`px-2 py-0.5 rounded transition-all cursor-pointer font-medium ${
-                      scratchpadMode === 'draw'
-                        ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 font-bold shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                    }`}
+                    onClick={handleUndo}
+                    className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-[#c7c4d7] dark:hover:text-[#dfe2f1] hover:bg-slate-100 dark:hover:bg-[#262a35] rounded-lg transition-colors cursor-pointer"
+                    title="تراجع"
                   >
-                    رسم
+                    <Undo2 className="w-4 h-4" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => setScratchpadMode('text')}
-                    className={`px-2 py-0.5 rounded transition-all cursor-pointer font-medium ${
-                      scratchpadMode === 'text'
-                        ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 font-bold shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                    }`}
+                    onClick={clearCanvas}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                    title="مسح اللوحة"
                   >
-                    كتابة
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
+
+                {/* Quick switch to question on mobile */}
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('question')}
+                  className="md:hidden mr-auto flex items-center gap-1 text-[10px] font-bold text-[#4f46e5] dark:text-[#c0c1ff] bg-[#eef2ff] dark:bg-[#262a35] px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-[#313540] shrink-0"
+                >
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>الخيارات</span>
+                </button>
               </div>
 
-              {/* Draw Mode */}
-              {scratchpadMode === 'draw' && (
-                <div className="flex-1 min-h-0 flex flex-col">
-                  {/* Drawing Toolbar */}
-                  <div className="mb-1.5 p-1 bg-[#f8fafc] rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-1 text-xs shrink-0">
-                    <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
-                      <button
-                        type="button"
-                        onClick={() => setDrawTool('pen')}
-                        className={`flex items-center gap-1 px-2 py-0.5 rounded font-semibold transition-colors cursor-pointer ${
-                          drawTool === 'pen'
-                            ? 'bg-[#3b4cb8] text-white shadow-xs'
-                            : 'text-slate-500 hover:text-slate-800'
-                        }`}
-                        title="قلم"
-                      >
-                        <PenTool className="w-3 h-3" />
-                        <span className="text-[10px]">قلم</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setDrawTool('eraser')}
-                        className={`flex items-center gap-1 px-2 py-0.5 rounded font-semibold transition-colors cursor-pointer ${
-                          drawTool === 'eraser'
-                            ? 'bg-amber-500 text-white shadow-xs'
-                            : 'text-slate-500 hover:text-slate-800'
-                        }`}
-                        title="ممحاة"
-                      >
-                        <Eraser className="w-3 h-3" />
-                        <span className="text-[10px]">ممحاة</span>
-                      </button>
-                    </div>
-
-                    {drawTool === 'pen' ? (
-                      <div className="flex items-center gap-1">
-                        {[
-                          { color: '#3b4cb8', name: 'أزرق نيلي' },
-                          { color: '#0f172a', name: 'أسود' },
-                          { color: '#10b981', name: 'أخضر' },
-                          { color: '#ef4444', name: 'أحمر' },
-                          { color: '#f59e0b', name: 'برتقالي' }
-                        ].map((item) => (
-                          <button
-                            key={item.color}
-                            type="button"
-                            onClick={() => setPenColor(item.color)}
-                            className={`w-3.5 h-3.5 rounded-full transition-transform cursor-pointer ${
-                              penColor === item.color ? 'scale-125 ring-2 ring-[#3b4cb8] shadow-xs' : 'opacity-70 hover:opacity-100'
-                            }`}
-                            style={{ backgroundColor: item.color }}
-                            title={item.name}
-                          />
-                        ))}
-
-                        <div className="flex items-center gap-0.5 border-r border-slate-200 pr-1 mr-0.5">
-                          {[
-                            { size: 2, label: 'رفيع' },
-                            { size: 4, label: 'وسط' },
-                            { size: 7, label: 'عريض' }
-                          ].map((s) => (
-                            <button
-                              key={s.size}
-                              type="button"
-                              onClick={() => setPenSize(s.size)}
-                              className={`px-1 py-0.5 text-[9px] rounded cursor-pointer ${
-                                penSize === s.size ? 'bg-slate-200 text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-800'
-                              }`}
-                            >
-                              {s.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 bg-white px-1 py-0.5 rounded border border-slate-200">
-                        <span className="text-[9px] text-amber-700">الممحاة:</span>
-                        {[
-                          { size: 14, label: 'صغيرة' },
-                          { size: 26, label: 'وسط' },
-                          { size: 44, label: 'عريضة' }
-                        ].map((s) => (
-                          <button
-                            key={s.size}
-                            type="button"
-                            onClick={() => setEraserSize(s.size)}
-                            className={`px-1 py-0.5 text-[9px] rounded cursor-pointer transition-colors ${
-                              eraserSize === s.size
-                                ? 'bg-amber-500 text-white font-bold'
-                                : 'text-slate-500 hover:text-slate-900'
-                            }`}
-                          >
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-1">
-                      {/* Quick Scroll & Space Controls */}
-                      <div className="flex items-center gap-0.5 bg-white p-0.5 rounded-lg border border-slate-200">
-                        <button
-                          type="button"
-                          onClick={handleScrollUp}
-                          className="p-1 text-slate-600 hover:text-[#3b4cb8] hover:bg-slate-100 rounded transition-colors cursor-pointer flex items-center gap-0.5"
-                          title="تمرير للأعلى"
-                        >
-                          <ChevronUp className="w-3.5 h-3.5" />
-                          <span className="text-[10px] hidden sm:inline">أعلى</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleScrollDown}
-                          className="p-1 text-slate-600 hover:text-[#3b4cb8] hover:bg-slate-100 rounded transition-colors cursor-pointer flex items-center gap-0.5"
-                          title="تمرير للأسفل"
-                        >
-                          <ChevronDown className="w-3.5 h-3.5" />
-                          <span className="text-[10px] hidden sm:inline">أسفل</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAddMoreSpace}
-                          className="p-1 text-slate-600 hover:text-[#3b4cb8] hover:bg-indigo-50 rounded transition-colors cursor-pointer flex items-center gap-0.5"
-                          title="إضافة مساحة رسم إضافية بالأسفل"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span className="text-[10px] hidden md:inline">مساحة</span>
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleUndo}
-                        className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors cursor-pointer"
-                        title="تراجع"
-                      >
-                        <Undo2 className="w-3 h-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={clearCanvas}
-                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                        title="مسح اللوحة"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Scrollable Canvas Viewport */}
-                  <div 
-                    ref={canvasContainerRef}
-                    onScroll={(e) => setScrollPos(e.currentTarget.scrollTop)}
-                    className="relative flex-1 min-h-0 bg-white border border-slate-200 rounded-xl overflow-y-auto overflow-x-hidden scroll-smooth"
-                    style={{
-                      scrollbarWidth: 'thin',
-                      scrollbarColor: '#94a3b8 #f1f5f9'
-                    }}
-                  >
-                    <div className="relative" style={{ height: `${canvasCalculatedHeight}px`, width: '100%' }}>
-                      <canvas
-                        ref={canvasRef}
-                        onMouseDown={startDrawing}
-                        onMouseMove={draw}
-                        onMouseUp={stopDrawing}
-                        onMouseLeave={stopDrawing}
-                        onTouchStart={startDrawing}
-                        onTouchMove={draw}
-                        onTouchEnd={stopDrawing}
-                        className={`w-full block touch-none ${
-                          drawTool === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'
-                        }`}
-                        style={{ width: '100%', height: `${canvasCalculatedHeight}px` }}
-                      />
-                      
-                      {/* Top indicator badge */}
-                      <div className="sticky top-2 left-2 float-left ml-2 mt-2 text-[10px] text-slate-500 pointer-events-none select-none flex items-center gap-1.5 bg-white/95 backdrop-blur-xs px-2 py-1 rounded-md border border-slate-200 shadow-xs z-10">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3b4cb8] animate-pulse"></span>
-                        <span>مسودة رسم كاملة (مرر بالماوس أو الأسهم للمزيد ↓)</span>
-                      </div>
-
-                      {/* Floating return-to-top button when scrolled down */}
-                      {scrollPos > 120 && (
-                        <button
-                          type="button"
-                          onClick={handleScrollTop}
-                          className="sticky bottom-3 left-3 float-left ml-3 mb-3 z-20 flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-[#3b4cb8] bg-white/95 backdrop-blur-xs border border-indigo-200 rounded-full shadow-md hover:bg-indigo-50 transition-all cursor-pointer"
-                          title="العودة لأعلى المسودة"
-                        >
-                          <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" />
-                          <span>العودة للأعلى</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Text Mode */}
-              {scratchpadMode === 'text' && (
-                <div className="flex-1 min-h-0 flex flex-col">
-                  <textarea
-                    value={scratchpads[currentQ.id] || ''}
-                    onChange={(e) => onScratchpadChange(currentQ.id, e.target.value)}
-                    placeholder="اكتب معادلتك أو خطواتك الرياضية هنا..."
-                    className="w-full flex-1 bg-[#f8fafc] border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-mono focus:outline-none focus:border-[#3b4cb8] leading-relaxed resize-none"
+              {/* Scrollable Canvas Viewport */}
+              <div 
+                ref={canvasContainerRef}
+                onScroll={(e) => setScrollPos(e.currentTarget.scrollTop)}
+                className="relative flex-1 min-h-0 bg-white dark:bg-[#0f131d] border border-slate-200 dark:border-[#262a35] rounded-xl overflow-y-auto overflow-x-hidden scroll-smooth"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#94a3b8 #f1f5f9'
+                }}
+              >
+                <div className="relative" style={{ height: `${canvasCalculatedHeight}px`, width: '100%' }}>
+                  <canvas
+                    ref={canvasRef}
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                    onTouchStart={startDrawing}
+                    onTouchMove={draw}
+                    onTouchEnd={stopDrawing}
+                    className={`w-full block touch-none ${
+                      drawTool === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'
+                    }`}
+                    style={{ width: '100%', height: `${canvasCalculatedHeight}px` }}
                   />
+                  
+                  {/* Floating return-to-top button when scrolled down */}
+                  {scrollPos > 120 && (
+                    <button
+                      type="button"
+                      onClick={handleScrollTop}
+                      className="sticky bottom-3 left-3 float-left ml-3 mb-3 z-20 flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-[#4f46e5] dark:text-[#c0c1ff] bg-white/95 dark:bg-[#171b26]/95 backdrop-blur-xs border border-indigo-200 dark:border-[#313540] rounded-full shadow-md hover:bg-indigo-50 dark:hover:bg-[#262a35] transition-all cursor-pointer"
+                      title="العودة لأعلى المسودة"
+                    >
+                      <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>العودة للأعلى</span>
+                    </button>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Drag Handle on Notes Box */}
               <div
@@ -995,18 +1137,18 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         </div>
 
         {/* Left Side: Vertical Status & Question Palette (Desktop Only) */}
-        <aside className="hidden md:flex w-60 sm:w-68 shrink-0 h-full flex-col bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 shadow-stitch-card overflow-hidden">
+        <aside className="hidden md:flex w-60 sm:w-68 shrink-0 h-full flex-col bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-3 shadow-stitch-card overflow-hidden">
           {/* Timer Card */}
-          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 mb-2 shrink-0 space-y-1.5">
+          <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-2.5 mb-2 shrink-0 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                <Clock className={`w-3.5 h-3.5 ${isTimeCritical ? 'text-red-500 animate-pulse' : 'text-[#3b4cb8] dark:text-indigo-400'}`} />
+              <div className="flex items-center gap-1.5 text-slate-600 dark:text-[#c7c4d7]">
+                <Clock className={`w-3.5 h-3.5 ${isTimeCritical ? 'text-red-500 animate-pulse' : 'text-[#4f46e5] dark:text-[#c0c1ff]'}`} />
                 <span>{hasTimeLimit ? 'الوقت المتبقي:' : 'الوقت:'}</span>
               </div>
               <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded border transition-colors ${
                 isTimeCritical
-                  ? 'bg-red-50 dark:bg-red-950/60 text-red-600 border-red-200 dark:border-red-900 animate-pulse'
-                  : 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 border-slate-200 dark:border-slate-800 shadow-xs'
+                  ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 animate-pulse'
+                  : 'bg-white dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] border-slate-200 dark:border-[#313540] shadow-xs'
               }`}>
                 {formatTime(hasTimeLimit ? remainingSeconds : secondsElapsed)}
               </span>
@@ -1014,11 +1156,11 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
             {/* Attempt badge if applicable */}
             {Boolean(attemptNumber > 1 || ((settings?.maxAttempts ?? 0) > 0)) && (
-              <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-[#c7c4d7] pt-1 border-t border-slate-200 dark:border-[#313540]">
                 <span className="flex items-center gap-1">
-                  <RotateCcw className="w-3 h-3 text-[#3b4cb8] dark:text-indigo-400" /> المحاولة:
+                  <RotateCcw className="w-3 h-3 text-[#4f46e5] dark:text-[#c0c1ff]" /> المحاولة:
                 </span>
-                <span className="font-bold text-[#3b4cb8] dark:text-indigo-400">
+                <span className="font-bold text-[#4f46e5] dark:text-[#c0c1ff]">
                   {attemptNumber} {settings?.maxAttempts && settings.maxAttempts > 0 ? `من ${settings.maxAttempts}` : ''}
                 </span>
               </div>
@@ -1026,20 +1168,20 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           </div>
 
           {/* Question Status Card */}
-          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 mb-2 shrink-0 space-y-2">
+          <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-2.5 mb-2 shrink-0 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-900 dark:text-white">
+              <span className="font-bold text-slate-900 dark:text-[#dfe2f1]">
                 السؤال {currentIndex + 1} من {questions.length}
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+              <span className="text-[10px] text-slate-500 dark:text-[#c7c4d7] font-semibold">
                 {progressPercent}%
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+            <div className="w-full bg-slate-200 dark:bg-[#313540] rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-[#3b4cb8] h-1.5 rounded-full transition-all duration-300"
+                className="bg-[#4f46e5] h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -1051,7 +1193,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               className={`w-full flex items-center justify-center gap-1.5 text-xs font-semibold py-1 rounded-lg transition-colors cursor-pointer border ${
                 flags[currentQ.id]
                   ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-xs'
-                  : 'bg-white dark:bg-[#151c2c] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800'
+                  : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-600 dark:text-[#c7c4d7] border-slate-200 dark:border-[#313540]'
               }`}
             >
               <Bookmark className={`w-3.5 h-3.5 ${flags[currentQ.id] ? 'fill-amber-500 text-amber-500' : ''}`} />
@@ -1060,13 +1202,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           </div>
 
           {/* Question Selector Palette (Grid) */}
-          <div className="flex-1 min-h-0 flex flex-col bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 overflow-hidden">
-            <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-200 dark:border-slate-800 shrink-0">
-              <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <ListOrdered className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+          <div className="flex-1 min-h-0 flex flex-col bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-2.5 overflow-hidden">
+            <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-200 dark:border-[#313540] shrink-0">
+              <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-[#dfe2f1]">
+                <ListOrdered className="w-3.5 h-3.5 text-slate-400 dark:text-[#908fa0]" />
                 <span>قائمة الأسئلة</span>
               </div>
-              <span className="text-[10px] text-[#3b4cb8] dark:text-indigo-400 font-semibold">
+              <span className="text-[10px] text-[#4f46e5] dark:text-[#c0c1ff] font-semibold">
                 {answeredCount}/{questions.length} مجاب
               </span>
             </div>
@@ -1085,10 +1227,10 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                     onClick={() => setCurrentIndex(idx)}
                     className={`h-7 rounded-lg text-xs font-bold transition-all flex items-center justify-center relative cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#3b4cb8] text-white ring-2 ring-[#3b4cb8]/30 shadow-xs font-black'
+                        ? 'bg-[#4f46e5] text-white ring-2 ring-[#4f46e5]/30 shadow-[0_0_12px_rgba(192,193,255,0.25)] font-black'
                         : isAnswered
                         ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 font-bold'
-                        : 'bg-white dark:bg-[#151c2c] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
+                        : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-600 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540]'
                     }`}
                   >
                     <span>{idx + 1}</span>
@@ -1101,7 +1243,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
             </div>
 
             {/* Legend */}
-            <div className="pt-1.5 mt-1.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-around text-[9px] text-slate-500 dark:text-slate-400 shrink-0">
+            <div className="pt-1.5 mt-1.5 border-t border-slate-200 dark:border-[#313540] flex items-center justify-around text-[9px] text-slate-500 dark:text-[#c7c4d7] shrink-0">
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span>مجاب</span>
@@ -1111,13 +1253,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 <span>مميز</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-[#313540]"></span>
                 <span>متبقي</span>
               </div>
             </div>
 
-            {/* التالي والسابق تحت قائمة الأسئلة: السابق يمين والتالي يسار */}
-            <div className="pt-2.5 mt-2 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 shrink-0">
+            {/* التالي والسابق تحت قائمة الأسئلة */}
+            <div className="pt-2.5 mt-2 border-t border-slate-200 dark:border-[#313540] flex items-center gap-2 shrink-0">
               {/* السابق (يمين) */}
               <button
                 type="button"
@@ -1125,8 +1267,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 onClick={handlePrev}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   isFirstQuestion
-                    ? 'border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed bg-slate-50 dark:bg-slate-900'
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#151c2c] hover:bg-slate-50 text-slate-700 dark:text-slate-200 shadow-xs'
+                    ? 'border-slate-200 dark:border-[#313540] text-slate-300 dark:text-slate-600 cursor-not-allowed bg-slate-50 dark:bg-[#171b26]'
+                    : 'border-slate-200 dark:border-[#313540] bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] shadow-xs'
                 }`}
               >
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1147,7 +1289,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold bg-[#3b4cb8] hover:bg-[#312e81] text-white shadow-sm transition-all cursor-pointer"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold bg-[#4f46e5] hover:bg-[#4338ca] text-white shadow-[0_0_12px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
                 >
                   <span>التالي</span>
                   <ArrowLeft className="w-3.5 h-3.5" />
@@ -1160,7 +1302,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
       </div>
 
       {/* Mobile Bottom Navigation Bar (Hidden on desktop) */}
-      <div className="md:hidden mt-2 p-2 bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl shadow-stitch-card flex items-center justify-between gap-2 shrink-0 z-20">
+      <div className="md:hidden mt-2 p-2 bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl shadow-stitch-card flex items-center justify-between gap-2 shrink-0 z-20">
         {/* Previous */}
         <button
           type="button"
@@ -1168,8 +1310,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           onClick={handlePrev}
           className={`flex items-center justify-center gap-1 py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
             isFirstQuestion
-              ? 'border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-900 cursor-not-allowed'
-              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 shadow-2xs'
+              ? 'border-slate-200 dark:border-[#313540] text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-[#171b26] cursor-not-allowed'
+              : 'border-slate-200 dark:border-[#313540] bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] shadow-2xs'
           }`}
         >
           <ArrowRight className="w-3.5 h-3.5" />
@@ -1183,7 +1325,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           className={`p-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex items-center gap-1 ${
             flags[currentQ.id]
               ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-xs'
-              : 'bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+              : 'bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-600 dark:text-[#c7c4d7] border-slate-200 dark:border-[#313540]'
           }`}
           title={flags[currentQ.id] ? 'تم التمييز' : 'تمييز السؤال'}
         >
@@ -1194,9 +1336,9 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         <button
           type="button"
           onClick={() => setShowPaletteModal(true)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold bg-[#f1f5f9] dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold bg-[#f1f5f9] dark:bg-[#262a35] hover:bg-indigo-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540] transition-colors shadow-2xs cursor-pointer"
         >
-          <ListOrdered className="w-3.5 h-3.5 text-[#3b4cb8] dark:text-indigo-400" />
+          <ListOrdered className="w-3.5 h-3.5 text-[#4f46e5] dark:text-[#c0c1ff]" />
           <span>الأسئلة ({currentIndex + 1}/{questions.length})</span>
         </button>
 
@@ -1214,7 +1356,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           <button
             type="button"
             onClick={handleNext}
-            className="flex items-center justify-center gap-1 py-2 px-3.5 rounded-xl text-xs font-bold bg-[#3b4cb8] hover:bg-[#312e81] text-white shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-1 py-2 px-3.5 rounded-xl text-xs font-bold bg-[#4f46e5] hover:bg-[#4338ca] text-white shadow-[0_0_12px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
           >
             <span>التالي</span>
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -1225,22 +1367,22 @@ export const QuizStage: React.FC<QuizStageProps> = ({
       {/* Mobile Question Palette Modal / Bottom Sheet */}
       {showPaletteModal && (
         <div 
-          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 animate-fadeIn"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 animate-fadeIn"
           onClick={() => setShowPaletteModal(false)}
         >
           <div 
-            className="bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] flex flex-col p-4 shadow-2xl overflow-hidden"
+            className="bg-white dark:bg-[#171b26] border border-slate-200 dark:border-[#262a35] rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] flex flex-col p-4 shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#262a35] shrink-0">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[#eef2ff] dark:bg-indigo-950/80 text-[#3b4cb8] dark:text-indigo-400 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-xl bg-[#eef2ff] dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] flex items-center justify-center">
                   <ListOrdered className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">قائمة الأسئلة</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-[#dfe2f1]">قائمة الأسئلة</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-[#c7c4d7]">
                     تمت الإجابة على {answeredCount} من أصل {questions.length} سؤال
                   </p>
                 </div>
@@ -1248,7 +1390,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPaletteModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#262a35] text-slate-500 hover:text-slate-900 dark:text-[#c7c4d7] dark:hover:text-[#dfe2f1] flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1256,13 +1398,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
             {/* Progress bar */}
             <div className="py-2.5 shrink-0">
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-[#c7c4d7] mb-1">
                 <span>التقدم في الاختبار</span>
-                <span className="font-bold font-mono text-[#3b4cb8] dark:text-indigo-400">{progressPercent}%</span>
+                <span className="font-bold font-mono text-[#4f46e5] dark:text-[#c0c1ff]">{progressPercent}%</span>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-slate-100 dark:bg-[#313540] rounded-full h-2 overflow-hidden">
                 <div 
-                  className="bg-[#3b4cb8] h-2 rounded-full transition-all duration-300"
+                  className="bg-[#4f46e5] h-2 rounded-full transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -1286,10 +1428,10 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                     }}
                     className={`h-11 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center relative cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#3b4cb8] text-white ring-2 ring-[#3b4cb8]/40 shadow-sm font-black scale-105'
+                        ? 'bg-[#4f46e5] text-white ring-2 ring-[#4f46e5]/40 shadow-[0_0_12px_rgba(192,193,255,0.25)] font-black scale-105'
                         : isAnswered
                         ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-bold'
-                        : 'bg-[#f8fafc] dark:bg-[#1a2236] hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
+                        : 'bg-[#f8fafc] dark:bg-[#1c1f2a] hover:bg-white dark:hover:bg-[#262a35] text-slate-700 dark:text-[#dfe2f1] border border-slate-200 dark:border-[#313540]'
                     }`}
                   >
                     <span>{idx + 1}</span>
@@ -1302,8 +1444,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
             </div>
 
             {/* Legend & Close Button */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+            <div className="pt-3 border-t border-slate-100 dark:border-[#262a35] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 text-[10px] text-slate-500 dark:text-[#c7c4d7]">
                 <div className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                   <span>مجاب ({answeredCount})</span>
@@ -1313,7 +1455,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                   <span>مميز ({Object.values(flags).filter(Boolean).length})</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                  <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-[#313540]"></span>
                   <span>متبقي ({questions.length - answeredCount})</span>
                 </div>
               </div>
@@ -1321,7 +1463,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPaletteModal(false)}
-                className="px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 bg-slate-100 dark:bg-[#262a35] hover:bg-slate-200 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] text-xs font-bold rounded-xl transition-colors cursor-pointer"
               >
                 إغلاق
               </button>
@@ -1332,53 +1474,53 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
       {/* Time Expired Modal */}
       {timeExpiredModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white border border-[#e2e8f0] rounded-2xl w-full max-w-md p-6 text-center shadow-2xl animate-fadeIn">
-            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3 border border-red-200">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl w-full max-w-md p-6 text-center shadow-2xl animate-fadeIn">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto mb-3 border border-red-200 dark:border-red-900">
               <Clock className="w-6 h-6 animate-pulse" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">انتهى وقت الاختبار المحدد!</h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#dfe2f1] mb-2">انتهى وقت الاختبار المحدد!</h3>
+            <p className="text-xs text-slate-500 dark:text-[#c7c4d7] mb-4">
               تم استنفاد وقت الاختبار المحدد. جاري تسليم إجاباتك وعرض النتيجة والتحليل المفصل الآن...
             </p>
-            <div className="w-6 h-6 border-2 border-[#3b4cb8] border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-6 h-6 border-2 border-[#4f46e5] border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
         </div>
       )}
 
       {/* Confirmation Finish Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white border border-[#e2e8f0] rounded-2xl w-full max-w-md p-6 shadow-2xl animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl w-full max-w-md p-6 shadow-2xl animate-fadeIn">
             
-            <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] text-[#3b4cb8] flex items-center justify-center mx-auto mb-4 border border-[#c7d2fe]">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] dark:bg-[#262a35] text-[#4f46e5] dark:text-[#c0c1ff] flex items-center justify-center mx-auto mb-4 border border-[#c7d2fe] dark:border-[#313540]">
               <CheckCircle2 className="w-7 h-7" />
             </div>
 
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#dfe2f1] text-center mb-2">
               تأكيد إنهاء الاختبار
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-500 text-center mb-6 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#c7c4d7] text-center mb-6 leading-relaxed">
               هل أنت متأكد من رغبتك في تسليم الاختبار الآن وعرض النتيجة والتحليل المفصل؟
             </p>
 
-            <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 mb-6 text-xs space-y-2">
-              <div className="flex justify-between text-slate-600">
+            <div className="bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-4 mb-6 text-xs space-y-2">
+              <div className="flex justify-between text-slate-600 dark:text-[#c7c4d7]">
                 <span>إجمالي الأسئلة:</span>
-                <span className="font-bold text-slate-900">{questions.length}</span>
+                <span className="font-bold text-slate-900 dark:text-[#dfe2f1]">{questions.length}</span>
               </div>
-              <div className="flex justify-between text-emerald-700">
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
                 <span>الأسئلة المجابة:</span>
                 <span className="font-bold">{answeredCount}</span>
               </div>
-              <div className="flex justify-between text-amber-700">
+              <div className="flex justify-between text-amber-700 dark:text-amber-400">
                 <span>الأسئلة المتبقية بدون إجابة:</span>
                 <span className="font-bold">{questions.length - answeredCount}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-slate-600 dark:text-[#c7c4d7]">
                 <span>الوقت المستغرق:</span>
-                <span className="font-mono text-[#3b4cb8] font-bold">{formatTime(secondsElapsed)}</span>
+                <span className="font-mono text-[#4f46e5] dark:text-[#c0c1ff] font-bold">{formatTime(secondsElapsed)}</span>
               </div>
             </div>
 
@@ -1386,7 +1528,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 transition-colors cursor-pointer"
+                className="flex-1 px-4 py-2.5 bg-white dark:bg-[#262a35] hover:bg-slate-50 dark:hover:bg-[#313540] text-slate-700 dark:text-[#dfe2f1] text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer"
               >
                 العودة للمتابعة
               </button>
@@ -1397,7 +1539,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                   setShowConfirmModal(false);
                   onFinishQuiz(secondsElapsed);
                 }}
-                className="flex-1 px-4 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
+                className="flex-1 px-4 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs sm:text-sm font-bold rounded-xl shadow-[0_0_14px_rgba(192,193,255,0.25)] transition-all cursor-pointer"
               >
                 تأكيد وتسليم النتيجة
               </button>
@@ -1412,10 +1554,10 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         <button
           type="button"
           onClick={onBackToReview}
-          className="fixed bottom-16 md:bottom-5 right-4 md:right-5 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/95 dark:bg-[#151c2c]/95 hover:bg-white text-slate-700 dark:text-slate-300 hover:text-[#3b4cb8] rounded-full border border-[#e2e8f0] dark:border-slate-800 shadow-md hover:shadow-lg transition-all cursor-pointer font-bold text-xs sm:text-sm group"
+          className="fixed bottom-16 md:bottom-5 right-4 md:right-5 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/95 dark:bg-[#171b26]/95 hover:bg-white dark:hover:bg-[#262a35] text-slate-700 dark:text-[#dfe2f1] hover:text-[#4f46e5] dark:hover:text-[#c0c1ff] rounded-full border border-[#e2e8f0] dark:border-[#262a35] shadow-md hover:shadow-[0_0_16px_rgba(192,193,255,0.2)] transition-all cursor-pointer font-bold text-xs sm:text-sm group"
           title="الرجوع لصفحة التعديل والمراجعة"
         >
-          <ArrowRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-[#3b4cb8] group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-[#4f46e5] dark:text-[#c0c1ff] group-hover:-translate-x-0.5 transition-transform" />
           <span>الرجوع للتعديل</span>
         </button>
       )}

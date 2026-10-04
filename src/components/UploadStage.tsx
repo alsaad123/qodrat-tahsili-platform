@@ -379,14 +379,14 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
       
       {/* Clean Minimal Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef2ff] text-[#3b4cb8] border border-[#c7d2fe] text-xs font-semibold mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef2ff] dark:bg-[#8083ff]/15 text-[#3b4cb8] dark:text-[#c0c1ff] border border-[#c7d2fe] dark:border-[#8083ff]/30 text-xs font-semibold mb-3">
           <Sparkles className="w-3.5 h-3.5" />
           <span>منشئ ومحلل محتوى القدرات والتحصيلي</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#dfe2f1] tracking-tight">
           رفع وتجهيز نماذج الاختبار
         </h1>
-        <p className="mt-2 text-slate-500 text-sm">
+        <p className="mt-2 text-slate-500 dark:text-[#c7c4d7] text-sm">
           ارفع ملف الأسئلة أو صور الاختبار الممسوحة ضوئياً للبدء فوراً بالذكاء الاصطناعي
         </p>
       </div>
@@ -408,24 +408,24 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !isLoading && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer relative overflow-hidden bg-white shadow-stitch-card ${
+          className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer relative overflow-hidden bg-white dark:bg-[#171b26] shadow-stitch-card ${
             isDragging
-              ? 'border-[#3b4cb8] bg-[#eef2ff]/50 ring-4 ring-[#3b4cb8]/10'
-              : 'border-slate-200 hover:border-[#3b4cb8] hover:bg-[#f8faff]'
+              ? 'border-[#3b4cb8] dark:border-[#c0c1ff] bg-[#eef2ff]/50 dark:bg-[#8083ff]/10 ring-4 ring-[#3b4cb8]/10'
+              : 'border-slate-200 dark:border-[#262a35] hover:border-[#3b4cb8] dark:hover:border-[#c0c1ff] hover:bg-[#f8faff] dark:hover:bg-[#1c1f2a]'
           }`}
         >
           {/* Loading Overlay */}
           {isLoading ? (
             <div className="py-8 flex flex-col items-center justify-center">
               <div className="relative mb-4">
-                <Loader2 className="w-10 h-10 text-[#3b4cb8] animate-spin" />
+                <Loader2 className="w-10 h-10 text-[#3b4cb8] dark:text-[#c0c1ff] animate-spin" />
                 <div className="absolute inset-0 rounded-full blur-sm bg-indigo-500/20 -z-10" />
               </div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">{loadingMessage}</h3>
+              <h3 className="text-base font-bold text-slate-800 dark:text-[#dfe2f1] mb-2">{loadingMessage}</h3>
               {progressPercent !== null && (
-                <div className="w-64 max-w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden border border-slate-200">
+                <div className="w-64 max-w-full bg-slate-100 dark:bg-[#1c1f2a] rounded-full h-2 mt-3 overflow-hidden border border-slate-200 dark:border-[#313540]">
                   <div
-                    className="bg-[#3b4cb8] h-2 rounded-full transition-all duration-300"
+                    className="bg-[#3b4cb8] dark:bg-[#c0c1ff] h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -433,35 +433,35 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#eef2ff] flex items-center justify-center mb-4 border border-[#c7d2fe] text-[#3b4cb8] shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-[#eef2ff] dark:bg-[#1c1f2a] flex items-center justify-center mb-4 border border-[#c7d2fe] dark:border-[#313540] text-[#3b4cb8] dark:text-[#c0c1ff] shadow-sm">
                 <Upload className="w-8 h-8" />
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#dfe2f1] mb-1.5">
                 اختر ملف الاختبار أو اسحبه هنا
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mb-5">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-[#c7c4d7] mb-5">
                 يدعم مستندات PDF وصور الأسئلة والمذكرات التعليمية (PNG / JPG / PDF)
               </p>
 
               {/* Supported formats minimal tags */}
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600">
-                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 font-medium">PDF</span>
-                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 font-medium">صور (PNG/JPG)</span>
-                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 font-medium">JSON</span>
-                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 font-medium">TXT</span>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600 dark:text-[#c7c4d7]">
+                <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] font-medium">PDF</span>
+                <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] font-medium">صور (PNG/JPG)</span>
+                <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] font-medium">JSON</span>
+                <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] font-medium">TXT</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Extra helper toggles */}
-        <div className="flex items-center justify-between mt-3 text-xs text-slate-500 px-2">
-          <label className="flex items-center gap-2 cursor-pointer hover:text-slate-700 select-none">
+        <div className="flex items-center justify-between mt-3 text-xs text-slate-500 dark:text-[#c7c4d7] px-2">
+          <label className="flex items-center gap-2 cursor-pointer hover:text-slate-700 dark:hover:text-[#dfe2f1] select-none">
             <input
               type="checkbox"
               checked={forceReverseArabic}
               onChange={(e) => setForceReverseArabic(e.target.checked)}
-              className="rounded bg-white border-slate-300 text-[#3b4cb8] focus:ring-[#3b4cb8] cursor-pointer"
+              className="rounded bg-white dark:bg-[#1c1f2a] border-slate-300 dark:border-[#313540] text-[#3b4cb8] focus:ring-[#3b4cb8] cursor-pointer"
             />
             <span>عكس اتجاه النصوص (إذا ظهرت الحروف مقلوبة في ملف PDF)</span>
           </label>
@@ -469,7 +469,7 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
           <button
             type="button"
             onClick={() => setShowManualPaste(!showManualPaste)}
-            className="text-[#3b4cb8] hover:text-[#312e81] cursor-pointer font-semibold"
+            className="text-[#3b4cb8] dark:text-[#c0c1ff] hover:text-[#312e81] dark:hover:text-white cursor-pointer font-semibold"
           >
             {showManualPaste ? 'إخفاء اللصق اليدوي' : 'لصق نص يدوي'}
           </button>
@@ -478,40 +478,40 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
 
       {/* Manual Paste Section (Collapsible) */}
       {showManualPaste && (
-        <div className="bg-white border border-[#e2e8f0] rounded-2xl p-6 mb-8 shadow-stitch-card">
+        <div className="bg-white dark:bg-[#171b26] border border-[#e2e8f0] dark:border-[#262a35] rounded-2xl p-6 mb-8 shadow-stitch-card">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#3b4cb8]" />
-              <h3 className="font-bold text-slate-900 text-sm">لصق نص الأسئلة والمذكرات</h3>
+              <FileText className="w-4 h-4 text-[#3b4cb8] dark:text-[#c0c1ff]" />
+              <h3 className="font-bold text-slate-900 dark:text-[#dfe2f1] text-sm">لصق نص الأسئلة والمذكرات</h3>
             </div>
           </div>
 
           <div className="mb-3">
-            <label className="block text-xs text-slate-500 mb-1">عنوان الاختبار:</label>
+            <label className="block text-xs text-slate-500 dark:text-[#c7c4d7] mb-1">عنوان الاختبار:</label>
             <input
               type="text"
               value={manualTitle}
               onChange={(e) => setManualTitle(e.target.value)}
-              className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-[#3b4cb8] focus:bg-white transition-colors"
+              className="w-full bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-[#dfe2f1] focus:outline-none focus:border-[#3b4cb8] focus:bg-white dark:focus:bg-[#171b26] transition-colors"
               placeholder="عنوان الاختبار..."
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs text-slate-500 mb-1">نص الأسئلة:</label>
+            <label className="block text-xs text-slate-500 dark:text-[#c7c4d7] mb-1">نص الأسئلة:</label>
             <textarea
               rows={6}
               value={pastedText}
               onChange={(e) => setPastedText(e.target.value)}
               placeholder={`س1: ما ناتج 25% من 400؟\nأ) 50\nب) 100\nج) 150\nد) 200\nالجواب: ب`}
-              className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl p-3 text-xs sm:text-sm text-slate-800 font-mono focus:outline-none focus:border-[#3b4cb8] focus:bg-white transition-colors"
+              className="w-full bg-[#f8fafc] dark:bg-[#1c1f2a] border border-slate-200 dark:border-[#313540] rounded-xl p-3 text-xs sm:text-sm text-slate-800 dark:text-[#dfe2f1] font-mono focus:outline-none focus:border-[#3b4cb8] focus:bg-white dark:focus:bg-[#171b26] transition-colors"
             />
           </div>
 
           <button
             type="button"
             onClick={handleManualParse}
-            className="px-5 py-2.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-all"
+            className="px-5 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_14px_rgba(192,193,255,0.25)] transition-all"
           >
             <span>استخراج والذهاب للمراجعة</span>
             <ArrowLeft className="w-4 h-4" />
@@ -521,26 +521,26 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
 
       {/* Error & Solution Notification Banner */}
       {errorMessage && (
-        <div className="mb-8 rounded-2xl bg-red-50 border border-red-200 p-4 sm:p-5 shadow-sm">
+        <div className="mb-8 rounded-2xl bg-red-50 dark:bg-[#93000a]/20 border border-red-200 dark:border-[#ffb4ab]/30 p-4 sm:p-5 shadow-sm">
           <div className="flex items-start gap-3 mb-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-[#ffb4ab] shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-red-900 text-sm mb-1">
+              <h3 className="font-bold text-red-900 dark:text-[#ffb4ab] text-sm mb-1">
                 تنبيه أثناء معالجة الملف
               </h3>
-              <p className="text-xs text-red-700 leading-relaxed">
+              <p className="text-xs text-red-700 dark:text-[#ffdad6] leading-relaxed">
                 {errorMessage}
               </p>
             </div>
           </div>
 
           {/* Actionable Solutions */}
-          <div className="mt-3 pt-3 border-t border-red-200 flex flex-wrap gap-2">
+          <div className="mt-3 pt-3 border-t border-red-200 dark:border-[#ffb4ab]/20 flex flex-wrap gap-2">
             {(cachedPagesForRetry || cachedImageForRetry) && (
               <button
                 type="button"
                 onClick={handleRetryAI}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#3b4cb8] hover:bg-[#312e81] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-sm"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-sm"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>إعادة المحاولة عبر الذكاء الاصطناعي</span>
@@ -553,7 +553,7 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
                 setErrorMessage(null);
                 setShowManualPaste(true);
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-colors cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-[#1c1f2a] hover:bg-slate-50 dark:hover:bg-[#262a35] text-slate-700 dark:text-[#dfe2f1] text-xs font-semibold rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer shadow-sm"
             >
               <FileText className="w-3.5 h-3.5 text-amber-500" />
               <span>لصق نص يدوي</span>
@@ -562,7 +562,7 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
             <button
               type="button"
               onClick={handleManualDraft}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-colors cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-[#1c1f2a] hover:bg-slate-50 dark:hover:bg-[#262a35] text-slate-700 dark:text-[#dfe2f1] text-xs font-semibold rounded-xl border border-slate-200 dark:border-[#313540] transition-colors cursor-pointer shadow-sm"
             >
               <Layers className="w-3.5 h-3.5 text-slate-500" />
               <span>إدخال يدوي</span>
