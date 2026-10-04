@@ -3,7 +3,8 @@ import { Question, StudentAnswers, StudentScratchpads, StudentFlags, OPTION_LABE
 import { 
   ArrowLeft, ArrowRight, Bookmark, CheckCircle2, 
   Clock, Edit3, Trash2, Check, Lightbulb,
-  Eraser, PenTool, Undo2, GripVertical, ListOrdered, Sparkles, RotateCcw
+  Eraser, PenTool, Undo2, GripVertical, ListOrdered, Sparkles, RotateCcw,
+  ChevronUp, ChevronDown, Plus
 } from 'lucide-react';
 import { MathFormulaRenderer } from './MathFormulaRenderer';
 
@@ -77,6 +78,11 @@ export const QuizStage: React.FC<QuizStageProps> = ({
   const [undoStack, setUndoStack] = useState<{ [qId: string]: string[] }>({});
   const drawingsRef = useRef<{ [qId: string]: string }>({});
   const prevQIdRef = useRef<string>(questions[0]?.id || '');
+
+  // Canvas vertical sizing and scrolling
+  const [extraCanvasHeight, setExtraCanvasHeight] = useState<number>(0);
+  const [canvasCalculatedHeight, setCanvasCalculatedHeight] = useState<number>(1200);
+  const [scrollPos, setScrollPos] = useState<number>(0);
 
   // Drawing canvas ref
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -197,18 +203,40 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     if (rect.width <= 0) return;
 
     const targetWidth = Math.round(container.clientWidth || rect.width);
-    // Height of 500px allows slight scroll down inside the compact panel
-    const targetHeight = 500;
+    const containerHeight = Math.round(container.clientHeight || rect.height || 550);
+    // Guarantee generous height: at least 2.2x the visible container height and minimum 1200px
+    const targetHeight = Math.max(Math.round(containerHeight * 2.2), 1200) + extraCanvasHeight;
+
+    setCanvasCalculatedHeight(targetHeight);
 
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      // Preserve existing strokes if canvas already has content before resizing
+      let currentData: string | null = null;
+      if (canvas.width > 0 && canvas.height > 0) {
+        try {
+          currentData = canvas.toDataURL();
+        } catch {
+          // ignore
+        }
+      }
+
       canvas.width = targetWidth;
       canvas.height = targetHeight;
 
       if (restoreDrawing) {
-        restoreDrawingForQuestion(currentQ.id);
+        if (currentData) {
+          const img = new Image();
+          img.onload = () => {
+            const ctx = canvas.getContext('2d');
+            if (ctx) ctx.drawImage(img, 0, 0);
+          };
+          img.src = currentData;
+        } else {
+          restoreDrawingForQuestion(currentQ.id);
+        }
       }
     }
-  }, [currentQ, restoreDrawingForQuestion]);
+  }, [currentQ, extraCanvasHeight, restoreDrawingForQuestion]);
 
   // Sync canvas with ResizeObserver whenever dimensions change
   useEffect(() => {
@@ -325,6 +353,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
   // Drawing canvas logic
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if ('touches' in e && e.touches.length > 1) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -442,6 +471,37 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         [currentQ.id]: ''
       }));
     }
+  };
+
+  // Fast scrolling and canvas expansion helpers
+  const handleScrollTop = () => {
+    canvasContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleScrollDown = () => {
+    if (!canvasContainerRef.current) return;
+    const current = canvasContainerRef.current.scrollTop;
+    const clientHeight = canvasContainerRef.current.clientHeight || 500;
+    canvasContainerRef.current.scrollTo({ top: current + clientHeight * 0.75, behavior: 'smooth' });
+  };
+
+  const handleScrollUp = () => {
+    if (!canvasContainerRef.current) return;
+    const current = canvasContainerRef.current.scrollTop;
+    const clientHeight = canvasContainerRef.current.clientHeight || 500;
+    canvasContainerRef.current.scrollTo({ top: Math.max(0, current - clientHeight * 0.75), behavior: 'smooth' });
+  };
+
+  const handleAddMoreSpace = () => {
+    setExtraCanvasHeight(prev => prev + 500);
+    setTimeout(() => {
+      if (canvasContainerRef.current) {
+        canvasContainerRef.current.scrollTo({
+          top: canvasContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 80);
   };
 
   return (
@@ -750,6 +810,37 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                     )}
 
                     <div className="flex items-center gap-1">
+                      {/* Quick Scroll & Space Controls */}
+                      <div className="flex items-center gap-0.5 bg-white p-0.5 rounded-lg border border-slate-200">
+                        <button
+                          type="button"
+                          onClick={handleScrollUp}
+                          className="p-1 text-slate-600 hover:text-[#3b4cb8] hover:bg-slate-100 rounded transition-colors cursor-pointer flex items-center gap-0.5"
+                          title="تمرير للأعلى"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                          <span className="text-[10px] hidden sm:inline">أعلى</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleScrollDown}
+                          className="p-1 text-slate-600 hover:text-[#3b4cb8] hover:bg-slate-100 rounded transition-colors cursor-pointer flex items-center gap-0.5"
+                          title="تمرير للأسفل"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                          <span className="text-[10px] hidden sm:inline">أسفل</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddMoreSpace}
+                          className="p-1 text-slate-600 hover:text-[#3b4cb8] hover:bg-indigo-50 rounded transition-colors cursor-pointer flex items-center gap-0.5"
+                          title="إضافة مساحة رسم إضافية بالأسفل"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span className="text-[10px] hidden md:inline">مساحة</span>
+                        </button>
+                      </div>
+
                       <button
                         type="button"
                         onClick={handleUndo}
@@ -772,9 +863,14 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                   {/* Scrollable Canvas Viewport */}
                   <div 
                     ref={canvasContainerRef}
-                    className="relative flex-1 min-h-0 bg-white border border-slate-200 rounded-xl overflow-y-auto overflow-x-hidden"
+                    onScroll={(e) => setScrollPos(e.currentTarget.scrollTop)}
+                    className="relative flex-1 min-h-0 bg-white border border-slate-200 rounded-xl overflow-y-auto overflow-x-hidden scroll-smooth"
+                    style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#94a3b8 #f1f5f9'
+                    }}
                   >
-                    <div className="relative" style={{ height: '500px', width: '100%' }}>
+                    <div className="relative" style={{ height: `${canvasCalculatedHeight}px`, width: '100%' }}>
                       <canvas
                         ref={canvasRef}
                         onMouseDown={startDrawing}
@@ -787,12 +883,27 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                         className={`w-full block touch-none ${
                           drawTool === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'
                         }`}
-                        style={{ width: '100%', height: '500px' }}
+                        style={{ width: '100%', height: `${canvasCalculatedHeight}px` }}
                       />
-                      <div className="absolute top-1.5 left-1.5 text-[9px] text-slate-400 pointer-events-none select-none flex items-center gap-1 bg-white/90 px-1.5 py-0.5 rounded border border-slate-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3b4cb8]"></span>
-                        <span>مسودة رسم (تمرير لأسفل لمساحة إضافية ↓)</span>
+                      
+                      {/* Top indicator badge */}
+                      <div className="sticky top-2 left-2 float-left ml-2 mt-2 text-[10px] text-slate-500 pointer-events-none select-none flex items-center gap-1.5 bg-white/95 backdrop-blur-xs px-2 py-1 rounded-md border border-slate-200 shadow-xs z-10">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#3b4cb8] animate-pulse"></span>
+                        <span>مسودة رسم كاملة (مرر بالماوس أو الأسهم للمزيد ↓)</span>
                       </div>
+
+                      {/* Floating return-to-top button when scrolled down */}
+                      {scrollPos > 120 && (
+                        <button
+                          type="button"
+                          onClick={handleScrollTop}
+                          className="sticky bottom-3 left-3 float-left ml-3 mb-3 z-20 flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-[#3b4cb8] bg-white/95 backdrop-blur-xs border border-indigo-200 rounded-full shadow-md hover:bg-indigo-50 transition-all cursor-pointer"
+                          title="العودة لأعلى المسودة"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" />
+                          <span>العودة للأعلى</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
