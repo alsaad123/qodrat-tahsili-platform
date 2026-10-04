@@ -586,7 +586,7 @@ export default function App() {
   };
 
   return (
-    <div className={`bg-[#f4f7fb] dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-[#3b4cb8] selection:text-white font-sans ${currentStage === 'quiz' ? 'h-screen max-h-screen overflow-hidden' : 'min-h-screen'}`} dir="rtl">
+    <div className={`bg-[#f4f7fb] dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-[#3b4cb8] selection:text-white font-sans ${currentStage === 'quiz' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`} dir="rtl">
       
       {/* Top Navbar */}
       {currentStage !== 'quiz' && (

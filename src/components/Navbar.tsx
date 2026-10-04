@@ -41,52 +41,63 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Right Area (Back button on non-first stages, or empty spacer to keep center balanced) */}
-          <div className="w-auto sm:min-w-[120px] flex items-center">
-            {!isFirstPage && (
+          {/* Right Area (Back button on non-first stages, or Logo) */}
+          <div className="flex items-center shrink-0">
+            {!isFirstPage ? (
               <button
                 type="button"
                 onClick={() => onNavigateStage('upload')}
-                className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 hover:text-[#3b4cb8] dark:hover:text-indigo-400 bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer font-medium shadow-2xs"
+                className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300 hover:text-[#3b4cb8] dark:hover:text-indigo-400 bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 sm:px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer font-medium shadow-2xs"
               >
                 <ArrowRight className="w-3.5 h-3.5" />
-                <span>العودة للرئيسية</span>
+                <span className="hidden xs:inline sm:inline">العودة للرئيسية</span>
+                <span className="xs:hidden sm:hidden">الرئيسية</span>
               </button>
+            ) : (
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-[#3b4cb8] to-indigo-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-xs">
+                  ق
+                </span>
+                <span className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white hidden xs:inline sm:inline">
+                  منصة قياس
+                </span>
+              </div>
             )}
           </div>
 
           {/* Center Area: Centered Tabs or Stage Title */}
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center px-1 sm:px-2">
             {isFirstPage ? (
               userRole === 'teacher' ? (
                 /* Teacher tabs: رفع واستخراج / اختباراتي */
-                <nav className="flex items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-750 shadow-xs">
+                <nav className="flex items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 sm:p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-750 shadow-xs max-w-full">
                   <button
                     type="button"
                     onClick={() => onSelectHomeTab('upload')}
-                    className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-5 py-1 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                       homeTab === 'upload'
                         ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 shadow-sm border border-slate-200/60 dark:border-slate-700'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <BookOpen className={`w-4 h-4 ${homeTab === 'upload' ? 'text-[#3b4cb8] dark:text-indigo-400' : 'text-slate-400'}`} />
-                    <span>رفع واستخراج</span>
+                    <BookOpen className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${homeTab === 'upload' ? 'text-[#3b4cb8] dark:text-indigo-400' : 'text-slate-400'}`} />
+                    <span className="hidden sm:inline">رفع واستخراج</span>
+                    <span className="sm:hidden text-[11px]">رفع</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => onSelectHomeTab('my-exams')}
-                    className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-5 py-1 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                       homeTab === 'my-exams'
                         ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 shadow-sm border border-slate-200/60 dark:border-slate-700'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Layers className={`w-4 h-4 ${homeTab === 'my-exams' ? 'text-[#3b4cb8] dark:text-indigo-400' : 'text-slate-400'}`} />
-                    <span>اختباراتي</span>
+                    <Layers className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${homeTab === 'my-exams' ? 'text-[#3b4cb8] dark:text-indigo-400' : 'text-slate-400'}`} />
+                    <span className="text-[11px] sm:text-sm">اختباراتي</span>
                     {publishedExamsCount > 0 && (
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                      <span className={`px-1.5 py-0.2 rounded-full text-[10px] sm:text-xs font-bold ${
                         homeTab === 'my-exams' 
                           ? 'bg-[#eef2ff] dark:bg-indigo-950/80 text-[#3b4cb8] dark:text-indigo-300' 
                           : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
@@ -98,26 +109,43 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </nav>
               ) : (
                 /* Student: Shows clean student portal indicator */
-                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-xs">
-                  <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>بوابة الطالب • جلسات الاختبارات المتاحة</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl text-[11px] sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-xs">
+                  <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="hidden sm:inline">بوابة الطالب • جلسات الاختبارات المتاحة</span>
+                  <span className="sm:hidden">بوابة الطالب</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 </div>
               )
             ) : (
               /* Inside Review / Results: Stage Indicator */
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">{examTitle}</span>
-                <span className="text-xs text-slate-400">({totalQuestions} مسألة)</span>
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{examTitle}</span>
+                <span className="text-[10px] sm:text-xs text-slate-400 shrink-0">({totalQuestions} مسألة)</span>
               </div>
             )}
           </div>
 
-          {/* Left Area (فوق يسار): Theme Switcher + Role Switcher */}
-          <div className="flex items-center gap-2 sm:gap-2.5 justify-end">
+          {/* Left Area: Theme Switcher + Role Switcher (Mobile Responsive) */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 justify-end">
             
-            {/* Theme Toggle: [نمط ساطع | نمط داكن] */}
-            <div className="flex items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 rounded-2xl border border-slate-200/80 dark:border-slate-750 shadow-xs">
+            {/* Theme Toggle - Single Button on Mobile, Dual Button on Desktop */}
+            <div className="flex sm:hidden">
+              <button
+                type="button"
+                onClick={() => onToggleTheme(theme === 'light' ? 'dark' : 'light')}
+                className="p-1.5 rounded-xl bg-[#f1f5f9] dark:bg-[#1e293b] border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-colors shadow-2xs"
+                title={theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الساطع'}
+              >
+                {theme === 'light' ? (
+                  <Moon className="w-4 h-4 text-indigo-600" />
+                ) : (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                )}
+              </button>
+            </div>
+
+            {/* Desktop Theme Segmented Pill */}
+            <div className="hidden sm:flex items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 rounded-2xl border border-slate-200/80 dark:border-slate-750 shadow-xs">
               <button
                 type="button"
                 onClick={() => onToggleTheme('light')}
@@ -129,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="نمط ساطع"
               >
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
-                <span className="hidden md:inline">نمط ساطع</span>
+                <span>نمط ساطع</span>
               </button>
 
               <button
@@ -143,12 +171,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="نمط داكن"
               >
                 <Moon className="w-3.5 h-3.5 text-indigo-300" />
-                <span className="hidden md:inline">نمط داكن</span>
+                <span>نمط داكن</span>
               </button>
             </div>
 
-            {/* Role Switcher: [معلم | طالب] */}
-            <div className="flex items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 rounded-2xl border border-slate-200/80 dark:border-slate-750 shadow-xs">
+            {/* Role Switcher - Compact on Mobile, Dual Button on Desktop */}
+            <div className="flex sm:hidden">
+              <button
+                type="button"
+                onClick={() => onSelectRole(userRole === 'teacher' ? 'student' : 'teacher')}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold bg-[#f1f5f9] dark:bg-[#1e293b] border border-slate-200/80 dark:border-slate-700 text-[#3b4cb8] dark:text-indigo-300 transition-colors shadow-2xs"
+                title="تبديل الدور (معلم / طالب)"
+              >
+                {userRole === 'teacher' ? <GraduationCap className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
+                <span className="text-[11px]">{userRole === 'teacher' ? 'معلم' : 'طالب'}</span>
+              </button>
+            </div>
+
+            {/* Desktop Role Segmented Pill */}
+            <div className="hidden sm:flex items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 rounded-2xl border border-slate-200/80 dark:border-slate-750 shadow-xs">
               <button
                 type="button"
                 onClick={() => onSelectRole('teacher')}

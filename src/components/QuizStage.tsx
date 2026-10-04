@@ -4,7 +4,7 @@ import {
   ArrowLeft, ArrowRight, Bookmark, CheckCircle2, 
   Clock, Edit3, Trash2, Check, Lightbulb,
   Eraser, PenTool, Undo2, GripVertical, ListOrdered, Sparkles, RotateCcw,
-  ChevronUp, ChevronDown, Plus
+  ChevronUp, ChevronDown, Plus, X
 } from 'lucide-react';
 import { MathFormulaRenderer } from './MathFormulaRenderer';
 
@@ -84,6 +84,10 @@ export const QuizStage: React.FC<QuizStageProps> = ({
   const [canvasCalculatedHeight, setCanvasCalculatedHeight] = useState<number>(1200);
   const [scrollPos, setScrollPos] = useState<number>(0);
 
+  // Mobile responsive views
+  const [mobileTab, setMobileTab] = useState<'question' | 'scratchpad'>('question');
+  const [showPaletteModal, setShowPaletteModal] = useState<boolean>(false);
+
   // Drawing canvas ref
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
@@ -159,9 +163,10 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     return () => clearInterval(interval);
   }, [isTimerRunning]);
 
-  // Reset hint state on question change
+  // Reset hint state and mobile tab on question change
   useEffect(() => {
     setShowHint(false);
+    setMobileTab('question');
   }, [currentIndex]);
 
   const currentQ = questions[currentIndex];
@@ -505,7 +510,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
   };
 
   return (
-    <div className="h-full w-full max-h-screen flex flex-col p-2.5 sm:p-3 overflow-hidden select-none" dir="rtl">
+    <div className="h-full w-full max-h-[100dvh] flex flex-col p-2 sm:p-3 overflow-hidden select-none" dir="rtl">
       
       {/* Two-Column App Layout: Right/Center = Quiz Area, Left = Vertical Status & Palette */}
       <div className="flex flex-col md:flex-row gap-3 flex-1 min-h-0 overflow-hidden">
@@ -513,29 +518,87 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         {/* Right / Main Quiz Area */}
         <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
           
-          {/* Top Bar: Question Details */}
-          <div className="flex items-center justify-between pb-2 mb-2 shrink-0 border-b border-slate-200">
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-bold text-slate-900 bg-white border border-slate-200 px-3 py-1 rounded-xl shadow-xs">
+          {/* Top Bar: Question Details & Mobile Timer / Palette Trigger */}
+          <div className="flex items-center justify-between pb-2 mb-2 shrink-0 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 px-2.5 sm:px-3 py-1 rounded-xl shadow-xs">
                 السؤال {currentIndex + 1} من {questions.length}
               </span>
               {currentQ.category && (
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#eef2ff] text-[#3b4cb8] border border-[#c7d2fe]">
+                <span className="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 rounded-full bg-[#eef2ff] dark:bg-indigo-950 text-[#3b4cb8] dark:text-indigo-400 border border-[#c7d2fe] dark:border-indigo-800 truncate max-w-[120px] sm:max-w-none">
                   {currentQ.category}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-              <span>المجاب:</span>
-              <span className="font-bold text-[#3b4cb8] bg-white px-2.5 py-0.5 rounded-lg border border-slate-200 font-mono shadow-xs">
-                {answeredCount} / {questions.length}
-              </span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Mobile Timer Badge */}
+              <div className={`md:hidden flex items-center gap-1 px-2 py-1 rounded-xl border text-xs font-mono font-bold shadow-2xs ${
+                isTimeCritical
+                  ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
+                  : 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 border-slate-200 dark:border-slate-800'
+              }`}>
+                <Clock className="w-3 h-3" />
+                <span>{formatTime(hasTimeLimit ? remainingSeconds : secondsElapsed)}</span>
+              </div>
+
+              {/* Mobile Questions Palette Trigger */}
+              <button
+                type="button"
+                onClick={() => setShowPaletteModal(true)}
+                className="md:hidden flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 px-2 py-1 rounded-xl shadow-2xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
+                title="عرض جميع الأسئلة"
+              >
+                <ListOrdered className="w-3.5 h-3.5 text-[#3b4cb8] dark:text-indigo-400" />
+                <span>{answeredCount}/{questions.length}</span>
+              </button>
+
+              {/* Desktop Answered Count */}
+              <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 font-medium">
+                <span>المجاب:</span>
+                <span className="font-bold text-[#3b4cb8] dark:text-indigo-400 bg-white dark:bg-[#151c2c] px-2.5 py-0.5 rounded-lg border border-slate-200 dark:border-slate-800 font-mono shadow-xs">
+                  {answeredCount} / {questions.length}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Compact Question Card */}
-          <div className="bg-white border border-[#e2e8f0] rounded-2xl p-3.5 sm:p-4 mb-2.5 shadow-stitch-card shrink-0">
+          {/* Mobile Tab Switcher: [السؤال والخيارات] | [مسودة الرسم ✍️] */}
+          <div className="flex md:hidden items-center bg-[#f1f5f9] dark:bg-[#1e293b] p-1 rounded-xl mb-2 border border-slate-200 dark:border-slate-800 text-xs shrink-0">
+            <button
+              type="button"
+              onClick={() => setMobileTab('question')}
+              className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                mobileTab === 'question'
+                  ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>السؤال والخيارات</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileTab('scratchpad')}
+              className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer relative ${
+                mobileTab === 'scratchpad'
+                  ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
+              }`}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>مسودة الرسم</span>
+              {undoStack[currentQ.id]?.length ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3b4cb8] animate-pulse"></span>
+              ) : null}
+            </button>
+          </div>
+
+          {/* Compact Question Card (Hidden on mobile if scratchpad tab is active) */}
+          <div className={`bg-white border border-[#e2e8f0] rounded-2xl p-3.5 sm:p-4 mb-2.5 shadow-stitch-card shrink-0 ${
+            mobileTab === 'scratchpad' ? 'hidden md:block' : 'block'
+          }`}>
             <div className="flex items-center justify-between gap-2 mb-1">
               <div className="flex items-center gap-1.5">
                 <span className="w-5 h-5 rounded-lg bg-[#eef2ff] text-[#3b4cb8] flex items-center justify-center font-bold text-[11px]">
@@ -603,10 +666,14 @@ export const QuizStage: React.FC<QuizStageProps> = ({
             ref={splitContainerRef}
             className="flex-1 min-h-0 flex gap-2.5 items-stretch relative overflow-hidden"
           >
-            {/* 1. Answers Box (Separate Card, Compact Height, Resizable Width) */}
+            {/* 1. Answers Box (Full width on mobile, resizable on desktop) */}
             <div
-              style={{ width: `${optionsWidthPercent}%` }}
-              className="bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 shadow-stitch-card flex flex-col h-fit max-h-full shrink-0 relative overflow-hidden"
+              style={{
+                width: typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : `${optionsWidthPercent}%`
+              }}
+              className={`bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 sm:p-3.5 shadow-stitch-card flex flex-col h-fit max-h-full shrink-0 relative overflow-hidden ${
+                mobileTab === 'question' ? 'w-full flex' : 'hidden md:flex'
+              }`}
             >
               <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 shrink-0">
                 <div className="flex items-center gap-1.5">
@@ -628,13 +695,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                       key={optIdx}
                       type="button"
                       onClick={() => onAnswerChange(currentQ.id, optIdx)}
-                      className={`w-full text-right p-2 sm:p-2.5 rounded-xl border transition-all flex items-center gap-2 group cursor-pointer ${
+                      className={`w-full text-right p-2.5 sm:p-3 rounded-xl border transition-all flex items-center gap-2 group cursor-pointer ${
                         isSelected
                           ? 'bg-[#eef2ff] dark:bg-indigo-950/60 border-[#3b4cb8] shadow-xs ring-2 ring-[#3b4cb8]/20 text-[#3b4cb8] dark:text-indigo-300 font-bold'
                           : 'bg-[#f8fafc] dark:bg-[#1a2236] hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 hover:border-slate-300 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <span className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
+                      <span className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
                         isSelected
                           ? 'bg-[#3b4cb8] text-white shadow-xs'
                           : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 group-hover:border-[#3b4cb8]'
@@ -656,6 +723,16 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                     </button>
                   );
                 })}
+
+                {/* Quick switch to Scratchpad on mobile */}
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('scratchpad')}
+                  className="md:hidden mt-2.5 w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold text-[#3b4cb8] dark:text-indigo-300 bg-[#eef2ff] dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-colors shadow-2xs"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>فتح مسودة الرسم والحل الرياضي ✍️</span>
+                </button>
               </div>
 
               {/* Drag Handle on Answers Box */}
@@ -663,7 +740,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 onMouseDown={handleSplitterMouseDown}
                 onTouchStart={handleSplitterTouchStart}
                 title="اسحب لتكبير أو تصغير عرض مربع الخيارات"
-                className="absolute left-0 top-0 bottom-0 w-3 hover:w-4 bg-transparent hover:bg-indigo-500/10 cursor-col-resize flex items-center justify-center group z-10"
+                className="hidden md:flex absolute left-0 top-0 bottom-0 w-3 hover:w-4 bg-transparent hover:bg-indigo-500/10 cursor-col-resize items-center justify-center group z-10"
               >
                 <div className="w-1 h-8 rounded-full bg-slate-300 group-hover:bg-[#3b4cb8] transition-colors flex items-center justify-center">
                   <span className="text-[8px] text-slate-400 group-hover:text-white font-bold select-none">›</span>
@@ -671,38 +748,52 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               </div>
             </div>
 
-            {/* 2. Notes Box (Separate Card, Taller Height, Resizable Width) */}
+            {/* 2. Notes Box (Full width on mobile, resizable on desktop) */}
             <div
-              style={{ width: `calc(${100 - optionsWidthPercent}% - 10px)` }}
-              className="bg-white border border-[#e2e8f0] rounded-2xl p-3 shadow-stitch-card flex flex-col flex-1 h-full min-h-0 relative overflow-hidden"
+              style={{
+                width: typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : `calc(${100 - optionsWidthPercent}% - 10px)`
+              }}
+              className={`bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-stitch-card flex flex-col flex-1 h-full min-h-0 relative overflow-hidden ${
+                mobileTab === 'scratchpad' ? 'w-full flex' : 'hidden md:flex'
+              }`}
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 shrink-0">
+              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 dark:border-slate-800 shrink-0">
                 <div className="flex items-center gap-1.5">
-                  <Edit3 className="w-3.5 h-3.5 text-[#3b4cb8]" />
-                  <h3 className="font-bold text-slate-900 text-xs">مسودة الطالب الرياضية (رسم وتخطيط)</h3>
+                  <Edit3 className="w-3.5 h-3.5 text-[#3b4cb8] dark:text-indigo-400" />
+                  <h3 className="font-bold text-slate-900 dark:text-white text-xs">مسودة الطالب الرياضية</h3>
+                  
+                  {/* Quick return button on mobile */}
+                  <button
+                    type="button"
+                    onClick={() => setMobileTab('question')}
+                    className="md:hidden mr-1 flex items-center gap-1 text-[10px] font-bold text-[#3b4cb8] dark:text-indigo-300 bg-[#eef2ff] dark:bg-indigo-950/60 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800"
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>العودة للخيارات</span>
+                  </button>
                 </div>
 
                 {/* Mode switch */}
-                <div className="flex items-center gap-1 bg-[#f1f5f9] p-0.5 rounded-lg border border-slate-200 text-[11px]">
+                <div className="flex items-center gap-1 bg-[#f1f5f9] dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px]">
                   <button
                     type="button"
                     onClick={() => setScratchpadMode('draw')}
                     className={`px-2 py-0.5 rounded transition-all cursor-pointer font-medium ${
                       scratchpadMode === 'draw'
-                        ? 'bg-white text-[#3b4cb8] font-bold shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900'
+                        ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 font-bold shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
                     }`}
                   >
-                    رسم / تخطيط
+                    رسم
                   </button>
                   <button
                     type="button"
                     onClick={() => setScratchpadMode('text')}
                     className={`px-2 py-0.5 rounded transition-all cursor-pointer font-medium ${
                       scratchpadMode === 'text'
-                        ? 'bg-white text-[#3b4cb8] font-bold shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900'
+                        ? 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 font-bold shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
                     }`}
                   >
                     كتابة
@@ -926,7 +1017,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 onMouseDown={handleSplitterMouseDown}
                 onTouchStart={handleSplitterTouchStart}
                 title="اسحب لتكبير أو تصغير عرض مربع النوتات"
-                className="absolute right-0 top-0 bottom-0 w-3 hover:w-4 bg-transparent hover:bg-indigo-500/10 cursor-col-resize flex items-center justify-center group z-10"
+                className="hidden md:flex absolute right-0 top-0 bottom-0 w-3 hover:w-4 bg-transparent hover:bg-indigo-500/10 cursor-col-resize items-center justify-center group z-10"
               >
                 <div className="w-1 h-8 rounded-full bg-slate-300 group-hover:bg-[#3b4cb8] transition-colors flex items-center justify-center">
                   <span className="text-[8px] text-slate-400 group-hover:text-white font-bold select-none">‹</span>
@@ -936,19 +1027,19 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           </div>
         </div>
 
-        {/* Left Side: Vertical Status & Question Palette */}
-        <aside className="w-60 sm:w-68 shrink-0 h-full flex flex-col bg-white border border-[#e2e8f0] rounded-2xl p-3 shadow-stitch-card overflow-hidden">
+        {/* Left Side: Vertical Status & Question Palette (Desktop Only) */}
+        <aside className="hidden md:flex w-60 sm:w-68 shrink-0 h-full flex-col bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl p-3 shadow-stitch-card overflow-hidden">
           {/* Timer Card */}
-          <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-2.5 mb-2 shrink-0 space-y-1.5">
+          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 mb-2 shrink-0 space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1.5 text-slate-600">
-                <Clock className={`w-3.5 h-3.5 ${isTimeCritical ? 'text-red-500 animate-pulse' : 'text-[#3b4cb8]'}`} />
+              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                <Clock className={`w-3.5 h-3.5 ${isTimeCritical ? 'text-red-500 animate-pulse' : 'text-[#3b4cb8] dark:text-indigo-400'}`} />
                 <span>{hasTimeLimit ? 'الوقت المتبقي:' : 'الوقت:'}</span>
               </div>
               <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded border transition-colors ${
                 isTimeCritical
-                  ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
-                  : 'bg-white text-[#3b4cb8] border-slate-200 shadow-xs'
+                  ? 'bg-red-50 dark:bg-red-950/60 text-red-600 border-red-200 dark:border-red-900 animate-pulse'
+                  : 'bg-white dark:bg-[#151c2c] text-[#3b4cb8] dark:text-indigo-400 border-slate-200 dark:border-slate-800 shadow-xs'
               }`}>
                 {formatTime(hasTimeLimit ? remainingSeconds : secondsElapsed)}
               </span>
@@ -956,11 +1047,11 @@ export const QuizStage: React.FC<QuizStageProps> = ({
 
             {/* Attempt badge if applicable */}
             {(attemptNumber > 1 || (settings?.maxAttempts && settings.maxAttempts > 0)) && (
-              <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200">
+              <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
                 <span className="flex items-center gap-1">
-                  <RotateCcw className="w-3 h-3 text-[#3b4cb8]" /> المحاولة:
+                  <RotateCcw className="w-3 h-3 text-[#3b4cb8] dark:text-indigo-400" /> المحاولة:
                 </span>
-                <span className="font-bold text-[#3b4cb8]">
+                <span className="font-bold text-[#3b4cb8] dark:text-indigo-400">
                   {attemptNumber} {settings?.maxAttempts && settings.maxAttempts > 0 ? `من ${settings.maxAttempts}` : ''}
                 </span>
               </div>
@@ -968,18 +1059,18 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           </div>
 
           {/* Question Status Card */}
-          <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-2.5 mb-2 shrink-0 space-y-2">
+          <div className="bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 mb-2 shrink-0 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-900">
+              <span className="font-bold text-slate-900 dark:text-white">
                 السؤال {currentIndex + 1} من {questions.length}
               </span>
-              <span className="text-[10px] text-slate-500 font-semibold">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
                 {progressPercent}%
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
               <div
                 className="bg-[#3b4cb8] h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
@@ -992,8 +1083,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
               onClick={() => onToggleFlag(currentQ.id)}
               className={`w-full flex items-center justify-center gap-1.5 text-xs font-semibold py-1 rounded-lg transition-colors cursor-pointer border ${
                 flags[currentQ.id]
-                  ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-xs'
-                  : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
+                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-xs'
+                  : 'bg-white dark:bg-[#151c2c] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800'
               }`}
             >
               <Bookmark className={`w-3.5 h-3.5 ${flags[currentQ.id] ? 'fill-amber-500 text-amber-500' : ''}`} />
@@ -1002,13 +1093,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
           </div>
 
           {/* Question Selector Palette (Grid) */}
-          <div className="flex-1 min-h-0 flex flex-col bg-[#f8fafc] border border-slate-200 rounded-xl p-2.5 overflow-hidden">
-            <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-200 shrink-0">
-              <div className="flex items-center gap-1 text-xs font-bold text-slate-700">
-                <ListOrdered className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex-1 min-h-0 flex flex-col bg-[#f8fafc] dark:bg-[#1a2236] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 overflow-hidden">
+            <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-200 dark:border-slate-800 shrink-0">
+              <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <ListOrdered className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                 <span>قائمة الأسئلة</span>
               </div>
-              <span className="text-[10px] text-[#3b4cb8] font-semibold">
+              <span className="text-[10px] text-[#3b4cb8] dark:text-indigo-400 font-semibold">
                 {answeredCount}/{questions.length} مجاب
               </span>
             </div>
@@ -1029,8 +1120,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                       isCurrent
                         ? 'bg-[#3b4cb8] text-white ring-2 ring-[#3b4cb8]/30 shadow-xs font-black'
                         : isAnswered
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 font-bold'
-                        : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 font-bold'
+                        : 'bg-white dark:bg-[#151c2c] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
                     }`}
                   >
                     <span>{idx + 1}</span>
@@ -1043,7 +1134,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
             </div>
 
             {/* Legend */}
-            <div className="pt-1.5 mt-1.5 border-t border-slate-200 flex items-center justify-around text-[9px] text-slate-500 shrink-0">
+            <div className="pt-1.5 mt-1.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-around text-[9px] text-slate-500 dark:text-slate-400 shrink-0">
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span>مجاب</span>
@@ -1053,13 +1144,13 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 <span>مميز</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
                 <span>متبقي</span>
               </div>
             </div>
 
             {/* التالي والسابق تحت قائمة الأسئلة: السابق يمين والتالي يسار */}
-            <div className="pt-2.5 mt-2 border-t border-slate-200 flex items-center gap-2 shrink-0">
+            <div className="pt-2.5 mt-2 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 shrink-0">
               {/* السابق (يمين) */}
               <button
                 type="button"
@@ -1067,8 +1158,8 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                 onClick={handlePrev}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   isFirstQuestion
-                    ? 'border-slate-200 text-slate-300 cursor-not-allowed bg-slate-50'
-                    : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-xs'
+                    ? 'border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed bg-slate-50 dark:bg-slate-900'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#151c2c] hover:bg-slate-50 text-slate-700 dark:text-slate-200 shadow-xs'
                 }`}
               >
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1100,6 +1191,177 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         </aside>
 
       </div>
+
+      {/* Mobile Bottom Navigation Bar (Hidden on desktop) */}
+      <div className="md:hidden mt-2 p-2 bg-white dark:bg-[#151c2c] border border-[#e2e8f0] dark:border-slate-800 rounded-2xl shadow-stitch-card flex items-center justify-between gap-2 shrink-0 z-20">
+        {/* Previous */}
+        <button
+          type="button"
+          disabled={isFirstQuestion}
+          onClick={handlePrev}
+          className={`flex items-center justify-center gap-1 py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+            isFirstQuestion
+              ? 'border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-900 cursor-not-allowed'
+              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 shadow-2xs'
+          }`}
+        >
+          <ArrowRight className="w-3.5 h-3.5" />
+          <span>السابق</span>
+        </button>
+
+        {/* Flag Button */}
+        <button
+          type="button"
+          onClick={() => onToggleFlag(currentQ.id)}
+          className={`p-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex items-center gap-1 ${
+            flags[currentQ.id]
+              ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-xs'
+              : 'bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+          }`}
+          title={flags[currentQ.id] ? 'تم التمييز' : 'تمييز السؤال'}
+        >
+          <Bookmark className={`w-4 h-4 ${flags[currentQ.id] ? 'fill-amber-500 text-amber-500' : ''}`} />
+        </button>
+
+        {/* Question Palette Trigger Modal */}
+        <button
+          type="button"
+          onClick={() => setShowPaletteModal(true)}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-bold bg-[#f1f5f9] dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs cursor-pointer"
+        >
+          <ListOrdered className="w-3.5 h-3.5 text-[#3b4cb8] dark:text-indigo-400" />
+          <span>الأسئلة ({currentIndex + 1}/{questions.length})</span>
+        </button>
+
+        {/* Next / Finish */}
+        {isLastQuestion ? (
+          <button
+            type="button"
+            onClick={() => setShowConfirmModal(true)}
+            className="flex items-center justify-center gap-1 py-2 px-3.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all cursor-pointer"
+          >
+            <span>إنهاء</span>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="flex items-center justify-center gap-1 py-2 px-3.5 rounded-xl text-xs font-bold bg-[#3b4cb8] hover:bg-[#312e81] text-white shadow-sm transition-all cursor-pointer"
+          >
+            <span>التالي</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Mobile Question Palette Modal / Bottom Sheet */}
+      {showPaletteModal && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 animate-fadeIn"
+          onClick={() => setShowPaletteModal(false)}
+        >
+          <div 
+            className="bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] flex flex-col p-4 shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-[#eef2ff] dark:bg-indigo-950/80 text-[#3b4cb8] dark:text-indigo-400 flex items-center justify-center">
+                  <ListOrdered className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">قائمة الأسئلة</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    تمت الإجابة على {answeredCount} من أصل {questions.length} سؤال
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPaletteModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Progress bar */}
+            <div className="py-2.5 shrink-0">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1">
+                <span>التقدم في الاختبار</span>
+                <span className="font-bold font-mono text-[#3b4cb8] dark:text-indigo-400">{progressPercent}%</span>
+              </div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="bg-[#3b4cb8] h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Questions Grid */}
+            <div className="flex-1 overflow-y-auto py-2 grid grid-cols-5 sm:grid-cols-6 gap-2 content-start">
+              {questions.map((q, idx) => {
+                const isCurrent = idx === currentIndex;
+                const isAnswered = answers[q.id] !== null && answers[q.id] !== undefined;
+                const isFlagged = flags[q.id];
+
+                return (
+                  <button
+                    key={q.id}
+                    type="button"
+                    onClick={() => {
+                      setCurrentIndex(idx);
+                      setMobileTab('question');
+                      setShowPaletteModal(false);
+                    }}
+                    className={`h-11 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center relative cursor-pointer ${
+                      isCurrent
+                        ? 'bg-[#3b4cb8] text-white ring-2 ring-[#3b4cb8]/40 shadow-sm font-black scale-105'
+                        : isAnswered
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-bold'
+                        : 'bg-[#f8fafc] dark:bg-[#1a2236] hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
+                    }`}
+                  >
+                    <span>{idx + 1}</span>
+                    {isFlagged && (
+                      <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500 ring-1 ring-white" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Legend & Close Button */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>مجاب ({answeredCount})</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <span>مميز ({Object.values(flags).filter(Boolean).length})</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                  <span>متبقي ({questions.length - answeredCount})</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPaletteModal(false)}
+                className="px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Time Expired Modal */}
       {timeExpiredModal && (
@@ -1183,11 +1445,11 @@ export const QuizStage: React.FC<QuizStageProps> = ({
         <button
           type="button"
           onClick={onBackToReview}
-          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 bg-white/95 hover:bg-white text-slate-700 hover:text-[#3b4cb8] rounded-full border border-[#e2e8f0] shadow-md hover:shadow-lg transition-all cursor-pointer font-bold text-xs sm:text-sm group"
+          className="fixed bottom-16 md:bottom-5 right-4 md:right-5 z-30 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/95 dark:bg-[#151c2c]/95 hover:bg-white text-slate-700 dark:text-slate-300 hover:text-[#3b4cb8] rounded-full border border-[#e2e8f0] dark:border-slate-800 shadow-md hover:shadow-lg transition-all cursor-pointer font-bold text-xs sm:text-sm group"
           title="الرجوع لصفحة التعديل والمراجعة"
         >
-          <ArrowRight className="w-4 h-4 text-[#3b4cb8] group-hover:-translate-x-0.5 transition-transform" />
-          <span>الرجوع لصفحة التعديل</span>
+          <ArrowRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-[#3b4cb8] group-hover:-translate-x-0.5 transition-transform" />
+          <span>الرجوع للتعديل</span>
         </button>
       )}
 
