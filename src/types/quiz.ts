@@ -51,6 +51,7 @@ export interface PublishedExam {
   rawText?: string;
   sourceImage?: string;
   sourceImages?: string[];
+  sourceFileUrl?: string; // رابط الملف الأصلي (PDF أو صورة) في Supabase Storage
   attemptsCount?: number;
   bestScore?: number;
 }

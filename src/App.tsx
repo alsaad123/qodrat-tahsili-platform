@@ -12,8 +12,10 @@ import {
   deleteExamFromSupabase,
   fetchSubmissions,
   saveSubmissionToSupabase,
-  deleteSubmissionFromSupabase
+  deleteSubmissionFromSupabase,
+  uploadExamFileToStorage
 } from './services/supabase';
+
 
 const STORAGE_KEY_QUESTIONS = 'qudurat_tahsili_questions';
 const STORAGE_KEY_TITLE = 'qudurat_tahsili_title';
@@ -147,6 +149,8 @@ export default function App() {
   const [fallbackTriggered, setFallbackTriggered] = useState<boolean>(false);
   const [sourceImage, setSourceImage] = useState<string | undefined>();
   const [sourceImages, setSourceImages] = useState<string[]>([]);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // الملف الأصلي للرفع إلى Storage
+
   const [answers, setAnswers] = useState<StudentAnswers>({});
   const [scratchpads, setScratchpads] = useState<StudentScratchpads>({});
   const [flags, setFlags] = useState<StudentFlags>({});
@@ -294,7 +298,8 @@ export default function App() {
     title: string,
     isFallback: boolean,
     uploadedImage?: string,
-    uploadedImages?: string[]
+    uploadedImages?: string[],
+    uploadedOriginalFile?: File
   ) => {
     setQuestions(loadedQuestions);
     setRawText(extractedRawText);
@@ -306,6 +311,10 @@ export default function App() {
     } else if (uploadedImage) {
       setSourceImage(uploadedImage);
       setSourceImages([uploadedImage]);
+    }
+    // Store raw file for Supabase Storage upload on publish
+    if (uploadedOriginalFile) {
+      setUploadedFile(uploadedOriginalFile);
     }
     setAnswers({});
     setScratchpads({});
@@ -345,10 +354,10 @@ export default function App() {
     setCurrentStage('quiz');
   };
 
-  // Publish Exam Handler
-  const handlePublishExam = (settings: ExamSettings) => {
+  const handlePublishExam = async (settings: ExamSettings) => {
+    const examId = `exam-${Date.now()}`;
     const newExam: PublishedExam = {
-      id: `exam-${Date.now()}`,
+      id: examId,
       title: examTitle || 'اختبار قدرات وتحصيلي',
       questions: [...questions],
       settings: { ...settings },
@@ -358,6 +367,15 @@ export default function App() {
       sourceImage: sourceImage,
       sourceImages: sourceImages
     };
+
+    // Upload the original file to Supabase Storage if available
+    if (uploadedFile) {
+      const fileUrl = await uploadExamFileToStorage(uploadedFile, examId);
+      if (fileUrl) {
+        (newExam as any).sourceFileUrl = fileUrl;
+      }
+      setUploadedFile(null);
+    }
 
     setPublishedExams(prev => {
       const existingIdx = prev.findIndex(e => e.title.trim().toLowerCase() === newExam.title.trim().toLowerCase());

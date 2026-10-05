@@ -96,6 +96,7 @@ export const QuizStage: React.FC<QuizStageProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
   const isDrawing = useRef(false);
+  const lastEraserPos = useRef<{ x: number; y: number } | null>(null);
 
   // Dragging event listeners for horizontal split between Answers and Notes
   useEffect(() => {
@@ -428,35 +429,33 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     const prevQId = prevQIdRef.current;
     const newQId = currentQ?.id;
 
-    // 1. If we are navigating away from a previous question, save whatever was on the canvas
-    if (canvasRef.current && prevQId && prevQId !== newQId) {
-      const canvas = canvasRef.current;
-      // If there were strokes on the canvas for prevQId
-      if (undoStack[prevQId] && undoStack[prevQId].length > 0) {
+    if (!newQId) return;
+
+    // Only run when actually changing questions (not on undoStack/drawing changes)
+    if (prevQId !== newQId) {
+      // 1. If we are navigating away from a previous question, save whatever was on the canvas
+      if (canvasRef.current && prevQId) {
+        const canvas = canvasRef.current;
         const data = canvas.toDataURL();
         drawingsRef.current[prevQId] = data;
         setQuestionDrawings(prev => ({ ...prev, [prevQId]: data }));
       }
-    }
 
-    // 2. Update prev question reference
-    if (newQId) {
+      // 2. Update prev question reference
       prevQIdRef.current = newQId;
-    }
 
-    // 3. Clear canvas and load drawing for the new question
-    if (newQId) {
+      // 3. Clear canvas and load drawing for the new question
       restoreDrawingForQuestion(newQId);
-    }
 
-    // 4. Reset scroll of canvas container to top
-    if (canvasContainerRef.current) {
-      canvasContainerRef.current.scrollTop = 0;
-    }
+      // 4. Reset scroll of canvas container to top
+      if (canvasContainerRef.current) {
+        canvasContainerRef.current.scrollTop = 0;
+      }
 
-    // 5. Reset question/media split to 50/50
-    setQuestionTextPercent(50);
-  }, [currentIndex, currentQ, restoreDrawingForQuestion, undoStack]);
+      // 5. Reset question/media split to 50/50
+      setQuestionTextPercent(50);
+    }
+  }, [currentQ?.id, restoreDrawingForQuestion]);
 
   // When switching to draw mode, ensure canvas is sized and drawing for current question is loaded
   useEffect(() => {
@@ -543,22 +542,27 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     isDrawing.current = true;
     const coords = getCanvasCoords(e);
 
-    ctx.beginPath();
-    ctx.moveTo(coords.x, coords.y);
-
     if (drawTool === 'eraser') {
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = eraserSize;
+      // Use clearRect in a circle around the cursor for precise local erasing
+      const r = eraserSize / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(coords.x, coords.y, r, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.clearRect(coords.x - r, coords.y - r, eraserSize, eraserSize);
+      ctx.restore();
+      lastEraserPos.current = coords;
     } else {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = penColor;
       ctx.lineWidth = penSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+      ctx.lineTo(coords.x + 0.1, coords.y + 0.1);
+      ctx.stroke();
     }
-
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineTo(coords.x + 0.1, coords.y + 0.1);
-    ctx.stroke();
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -571,25 +575,53 @@ export const QuizStage: React.FC<QuizStageProps> = ({
     const coords = getCanvasCoords(e);
 
     if (drawTool === 'eraser') {
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = eraserSize;
+      // Interpolate between last eraser position and current for smooth erasing
+      const r = eraserSize / 2;
+      const last = lastEraserPos.current;
+      if (last) {
+        const dist = Math.sqrt((coords.x - last.x) ** 2 + (coords.y - last.y) ** 2);
+        const steps = Math.max(1, Math.ceil(dist / (r * 0.5)));
+        for (let i = 0; i <= steps; i++) {
+          const ix = last.x + (coords.x - last.x) * (i / steps);
+          const iy = last.y + (coords.y - last.y) * (i / steps);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(ix, iy, r, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.clearRect(ix - r, iy - r, eraserSize, eraserSize);
+          ctx.restore();
+        }
+      } else {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(coords.x, coords.y, r, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.clearRect(coords.x - r, coords.y - r, eraserSize, eraserSize);
+        ctx.restore();
+      }
+      lastEraserPos.current = coords;
     } else {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = penColor;
       ctx.lineWidth = penSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
     }
-
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineTo(coords.x, coords.y);
-    ctx.stroke();
   };
 
   const stopDrawing = () => {
     if (!isDrawing.current) return;
     isDrawing.current = false;
+    lastEraserPos.current = null;
     const canvas = canvasRef.current;
     if (canvas && currentQ) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.beginPath();
+        ctx.globalCompositeOperation = 'source-over';
+      }
       const dataUrl = canvas.toDataURL();
       drawingsRef.current[currentQ.id] = dataUrl;
       setQuestionDrawings(prev => ({
@@ -1062,6 +1094,31 @@ export const QuizStage: React.FC<QuizStageProps> = ({
                         style={{ backgroundColor: item.color }}
                         title={item.name}
                       />
+                    ))}
+                  </div>
+                )}
+
+                {/* 2. Eraser sizes when eraser is active */}
+                {drawTool === 'eraser' && (
+                  <div className="flex items-center gap-1.5 px-1 shrink-0">
+                    <span className="text-[10px] text-slate-400 dark:text-[#908fa0]">الحجم:</span>
+                    {[
+                      { size: 14, label: 'دقيق' },
+                      { size: 28, label: 'متوسط' },
+                      { size: 50, label: 'عريض' }
+                    ].map((item) => (
+                      <button
+                        key={item.size}
+                        type="button"
+                        onClick={() => setEraserSize(item.size)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                          eraserSize === item.size
+                            ? 'bg-amber-500 text-white shadow-xs'
+                            : 'bg-white dark:bg-[#262a35] text-slate-600 dark:text-[#c7c4d7] border border-slate-200 dark:border-[#313540] hover:border-amber-400'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
                     ))}
                   </div>
                 )}
