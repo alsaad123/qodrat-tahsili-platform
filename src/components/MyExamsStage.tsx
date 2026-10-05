@@ -119,7 +119,7 @@ export const MyExamsStage: React.FC<MyExamsStageProps> = ({
       {/* Grid of Exams */}
       {filteredExams.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredExams.map((exam) => {
+      {filteredExams.slice().reverse().map((exam) => {
             const hasDuration = exam.settings?.durationMinutes && exam.settings.durationMinutes > 0;
             const maxAttempts = exam.settings?.maxAttempts ?? 1;
             const attemptsUsed = studentAttempts[exam.id] || 0;

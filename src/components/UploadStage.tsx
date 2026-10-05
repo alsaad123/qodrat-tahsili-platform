@@ -19,7 +19,8 @@ interface UploadStageProps {
     title: string, 
     fallbackTriggered: boolean,
     sourceImage?: string,
-    sourceImages?: string[]
+    sourceImages?: string[],
+    uploadedOriginalFile?: File
   ) => void;
 }
 
@@ -167,7 +168,8 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
 
         const title = firstFile.name.replace(/\.[^/.]+$/, '');
         const combinedRaw = allRawTexts.join('\n\n');
-        onExamLoaded(allQuestions, combinedRaw, title, false, allPageImages[0], allPageImages);
+        onExamLoaded(allQuestions, combinedRaw, title, false, allPageImages[0], allPageImages, firstFile);
+
 
       // CASE B: Multiple or Single Image Files (PNG, JPG, JPEG, WEBP)
       } else if (['png', 'jpg', 'jpeg', 'webp'].includes(extension || '')) {
@@ -223,7 +225,8 @@ export const UploadStage: React.FC<UploadStageProps> = ({ onExamLoaded }) => {
           ? imageFiles[0].name.replace(/\.[^/.]+$/, '') 
           : `تجميعات مصورة (${imageFiles.length} صفحات)`;
 
-        onExamLoaded(allQuestions, allRawTexts.join('\n\n'), title, allQuestions.length === 0, allImageUrls[0], allImageUrls);
+        onExamLoaded(allQuestions, allRawTexts.join('\n\n'), title, allQuestions.length === 0, allImageUrls[0], allImageUrls, firstFile);
+
 
       // CASE C: JSON Files
       } else if (extension === 'json') {

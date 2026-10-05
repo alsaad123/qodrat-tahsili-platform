@@ -130,8 +130,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
           const resp = await fetch(geminiUrl, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'User-Agent': 'aistudio-build'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
           });
